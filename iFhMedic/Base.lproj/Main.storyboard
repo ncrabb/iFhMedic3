@@ -1,0 +1,725 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9531" systemVersion="15A284" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
+    </dependencies>
+    <scenes>
+        <!--Login View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="LoginViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
+                        <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="1024" height="768"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <containerView opaque="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="OOW-4G-XGg">
+                                <rect key="frame" x="625" y="156" width="349" height="381"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </containerView>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="ipad_logo_white.png" translatesAutoresizingMaskIntoConstraints="NO" id="4Yp-vj-lhz">
+                                <rect key="frame" x="100" y="156" width="380" height="340"/>
+                            </imageView>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JOL-TP-sw0">
+                                <rect key="frame" x="657" y="187" width="285" height="30"/>
+                                <state key="normal" title="Medic 6" backgroundImage="login_btn_bg.png">
+                                    <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="btnSelectUnitClick:" destination="BYZ-38-t0r" eventType="touchUpInside" id="SQf-m6-laE"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PwZ-iL-Af7">
+                                <rect key="frame" x="657" y="237" width="285" height="30"/>
+                                <state key="normal" title="1" backgroundImage="login_btn_bg.png">
+                                    <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="btnShiftClick:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Wlj-RB-108"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="z5S-E8-jZH">
+                                <rect key="frame" x="657" y="285" width="285" height="30"/>
+                                <state key="normal" title="User, One" backgroundImage="login_btn_bg.png">
+                                    <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="UserClick:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ycZ-wY-whz"/>
+                                </connections>
+                            </button>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="password" borderStyle="line" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="l9Y-rb-YhM">
+                                <rect key="frame" x="657" y="336" width="291" height="44"/>
+                                <color key="tintColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                <textInputTraits key="textInputTraits" secureTextEntry="YES"/>
+                            </textField>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="99o-q8-xI8">
+                                <rect key="frame" x="657" y="423" width="291" height="45"/>
+                                <state key="normal" title="Login" backgroundImage="btn_background_Big.png">
+                                    <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="LoginClick:" destination="BYZ-38-t0r" eventType="touchUpInside" id="P9w-B6-Fnj"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lDL-FS-r3e">
+                                <rect key="frame" x="742" y="484" width="120" height="33"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                <state key="normal" title="Exit FHMedic" backgroundImage="mainMenu_btn_bg.png">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="btnExitClick:" destination="BYZ-38-t0r" eventType="touchUpInside" id="vnJ-qL-aAe"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="CTg-RV-BtS">
+                                <rect key="frame" x="100" y="625" width="200" height="36"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                    </view>
+                    <simulatedOrientationMetrics key="simulatedOrientationMetrics" orientation="landscapeRight"/>
+                    <simulatedScreenMetrics key="simulatedDestinationMetrics" type="iPad"/>
+                    <connections>
+                        <outlet property="btnLogin" destination="99o-q8-xI8" id="MuD-3J-69p"/>
+                        <outlet property="btnShift" destination="PwZ-iL-Af7" id="GGD-bl-quu"/>
+                        <outlet property="btnUnit" destination="JOL-TP-sw0" id="7Wp-2d-IOJ"/>
+                        <outlet property="btnUser" destination="z5S-E8-jZH" id="NlZ-BK-QTy"/>
+                        <outlet property="lblVersion" destination="CTg-RV-BtS" id="9OS-BG-XKj"/>
+                        <outlet property="txtPassword" destination="l9Y-rb-YhM" id="meo-DF-Qdd"/>
+                        <segue destination="8RV-qz-PIs" kind="presentation" identifier="LoginToMainSegue" id="krJ-Ob-dxa"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+        </scene>
+        <!--Main View Controller-->
+        <scene sceneID="x8V-Ir-N1l">
+            <objects>
+                <viewController automaticallyAdjustsScrollViewInsets="NO" id="8RV-qz-PIs" customClass="MainViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="rBD-2t-glc"/>
+                        <viewControllerLayoutGuide type="bottom" id="Qgv-Iq-Xwc"/>
+                    </layoutGuides>
+                    <view key="view" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="RkQ-uf-lPv">
+                        <rect key="frame" x="0.0" y="0.0" width="1024" height="768"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="VgU-PV-Xnb">
+                                <rect key="frame" x="0.0" y="20" width="1024" height="44"/>
+                                <items>
+                                    <barButtonItem style="plain" id="fkl-gN-qln">
+                                        <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="yGb-Ee-A1l">
+                                            <rect key="frame" x="20" y="5" width="110" height="34"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <state key="normal" title="Refresh Status" backgroundImage="mainMenu_btn_bg.png">
+                                                <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                            </state>
+                                            <connections>
+                                                <action selector="btnTransferClick:" destination="8RV-qz-PIs" eventType="touchUpInside" id="ivJ-4V-Zh2"/>
+                                            </connections>
+                                        </button>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" id="9C7-Im-bB4">
+                                        <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="wordWrap" id="nZE-ND-obB">
+                                            <rect key="frame" x="140" y="5" width="110" height="34"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <state key="normal" backgroundImage="mainMenu_btn_bg.png">
+                                                <string key="title">Copy Incident
+To New</string>
+                                                <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                            </state>
+                                            <connections>
+                                                <action selector="btnCopyNew:" destination="8RV-qz-PIs" eventType="touchUpInside" id="KGl-eH-rZZ"/>
+                                            </connections>
+                                        </button>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" id="t1e-Tn-wZV">
+                                        <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="NBC-QH-Vvd">
+                                            <rect key="frame" x="260" y="5" width="110" height="34"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <state key="normal" title="Transfer" backgroundImage="mainMenu_btn_bg.png">
+                                                <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                            </state>
+                                            <connections>
+                                                <action selector="btnTransferTicketClick:" destination="8RV-qz-PIs" eventType="touchUpInside" id="UEv-wI-eol"/>
+                                            </connections>
+                                        </button>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" id="8eO-av-rLE">
+                                        <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="y6v-5g-NLW">
+                                            <rect key="frame" x="380" y="5" width="110" height="34"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <state key="normal" title="View PCR" backgroundImage="mainMenu_btn_bg.png">
+                                                <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                            </state>
+                                            <connections>
+                                                <action selector="btnViewPCRClick:" destination="8RV-qz-PIs" eventType="touchUpInside" id="Dhd-53-a9L"/>
+                                            </connections>
+                                        </button>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" id="xLM-Hj-j5L">
+                                        <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="yI0-ub-gQQ">
+                                            <rect key="frame" x="500" y="5" width="110" height="34"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <state key="normal" title="Hide Practice" backgroundImage="mainMenu_btn_bg.png">
+                                                <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                            </state>
+                                            <connections>
+                                                <action selector="showPracticeClicked:" destination="8RV-qz-PIs" eventType="touchUpInside" id="jMw-i1-f94"/>
+                                            </connections>
+                                        </button>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" id="Gca-Jd-ggR">
+                                        <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="ISz-bf-iV3">
+                                            <rect key="frame" x="620" y="5" width="110" height="34"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <state key="normal" title="FH Help" backgroundImage="mainMenu_btn_bg.png">
+                                                <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                            </state>
+                                            <connections>
+                                                <action selector="btnHelpClick:" destination="8RV-qz-PIs" eventType="touchUpInside" id="Dfl-2K-NKk"/>
+                                            </connections>
+                                        </button>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" id="lav-jF-GNd">
+                                        <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="MSI-H2-WM4">
+                                            <rect key="frame" x="740" y="5" width="73" height="34"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <state key="normal" title="Logout" backgroundImage="mainMenu_btn_bg.png">
+                                                <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                            </state>
+                                            <connections>
+                                                <action selector="doneButtonPressed:" destination="8RV-qz-PIs" eventType="touchUpInside" id="4OJ-BO-S51"/>
+                                            </connections>
+                                        </button>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="RFl-zg-dOc"/>
+                                    <barButtonItem style="plain" id="gxe-CL-VA4">
+                                        <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="Fto-Ej-9dG">
+                                            <rect key="frame" x="820" y="5" width="44" height="34"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <state key="normal" backgroundImage="icon_btn_add.png">
+                                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                            </state>
+                                            <connections>
+                                                <action selector="btnNewTicketClick:" destination="8RV-qz-PIs" eventType="touchUpInside" id="e8r-9m-y2W"/>
+                                            </connections>
+                                        </button>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" id="AMV-Cw-3qo">
+                                        <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="bfL-bH-d0Q">
+                                            <rect key="frame" x="874" y="5" width="60" height="34"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                            <state key="normal" title="Edit" backgroundImage="icon_button_bkg.png">
+                                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                            </state>
+                                            <connections>
+                                                <action selector="btnEditTicketClick:" destination="8RV-qz-PIs" eventType="touchUpInside" id="SYM-ki-cab"/>
+                                            </connections>
+                                        </button>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" id="thH-C2-WVv">
+                                        <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="3q5-XW-3oK">
+                                            <rect key="frame" x="944" y="5" width="60" height="34"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                            <state key="normal" title="Crew" backgroundImage="icon_button_bkg.png">
+                                                <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                            </state>
+                                            <connections>
+                                                <action selector="btnCrewClick:" destination="8RV-qz-PIs" eventType="touchUpInside" id="7L8-cJ-viC"/>
+                                            </connections>
+                                        </button>
+                                    </barButtonItem>
+                                </items>
+                                <color key="barTintColor" red="0.0" green="0.40000000000000002" blue="0.59999999999999998" alpha="1" colorSpace="calibratedRGB"/>
+                            </toolbar>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="sub_navigation_bar_bkg.png" translatesAutoresizingMaskIntoConstraints="NO" id="grD-mA-79j">
+                                <rect key="frame" x="0.0" y="64" width="1024" height="44"/>
+                            </imageView>
+                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hmx-tM-YL3">
+                                <rect key="frame" x="669" y="65" width="2" height="43"/>
+                                <color key="backgroundColor" red="0.43529411759999997" green="0.4431372549" blue="0.47450980390000003" alpha="1" colorSpace="calibratedRGB"/>
+                            </view>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="db1-6V-grm">
+                                <rect key="frame" x="668" y="64" width="90" height="44"/>
+                                <state key="normal" title="Review">
+                                    <color key="titleColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="reviewButtonPressed:" destination="8RV-qz-PIs" eventType="touchUpInside" id="XC6-rd-OFL"/>
+                                </connections>
+                            </button>
+                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wVP-I6-ymh">
+                                <rect key="frame" x="756" y="65" width="2" height="43"/>
+                                <color key="backgroundColor" red="0.43529411759999997" green="0.4431372549" blue="0.47450980390000003" alpha="1" colorSpace="calibratedRGB"/>
+                            </view>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CQZ-TU-5y8">
+                                <rect key="frame" x="757" y="64" width="90" height="44"/>
+                                <state key="normal" title="Incomplete">
+                                    <color key="titleColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="incompleteButtonPressed:" destination="8RV-qz-PIs" eventType="touchUpInside" id="2Ah-dd-gco"/>
+                                </connections>
+                            </button>
+                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Kew-Si-vip">
+                                <rect key="frame" x="845" y="64" width="2" height="43"/>
+                                <color key="backgroundColor" red="0.43529411759999997" green="0.4431372549" blue="0.47450980390000003" alpha="1" colorSpace="calibratedRGB"/>
+                            </view>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Nqc-2K-0Te">
+                                <rect key="frame" x="845" y="64" width="90" height="44"/>
+                                <state key="normal" title="Completed">
+                                    <color key="titleColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="completeButtonPressed:" destination="8RV-qz-PIs" eventType="touchUpInside" id="TXd-QW-uk0"/>
+                                </connections>
+                            </button>
+                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="W0l-Rb-wkw">
+                                <rect key="frame" x="933" y="65" width="2" height="43"/>
+                                <color key="backgroundColor" red="0.43529411759999997" green="0.4431372549" blue="0.47450980390000003" alpha="1" colorSpace="calibratedRGB"/>
+                            </view>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QOg-oI-gRh">
+                                <rect key="frame" x="935" y="64" width="91" height="44"/>
+                                <state key="normal" title="All">
+                                    <color key="titleColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="AllButtonPressed:" destination="8RV-qz-PIs" eventType="touchUpInside" id="AbE-iG-606"/>
+                                </connections>
+                            </button>
+                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="PWV-Dp-ggl">
+                                <rect key="frame" x="0.0" y="108" width="1024" height="268"/>
+                                <connections>
+                                    <outlet property="delegate" destination="8RV-qz-PIs" id="4pe-23-lKW"/>
+                                </connections>
+                            </mapView>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fQD-MG-oDE">
+                                <rect key="frame" x="0.0" y="376" width="1024" height="44"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                <items>
+                                    <barButtonItem style="plain" id="77n-kg-BtK">
+                                        <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="7G0-Vv-jDe">
+                                            <rect key="frame" x="20" y="6" width="215" height="33"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                            <state key="normal" title="Incident Number">
+                                                <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                            </state>
+                                        </button>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" id="Wfd-eR-eyh">
+                                        <segmentedControl key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bar" selectedSegmentIndex="0" id="PiW-L8-HzA">
+                                            <rect key="frame" x="245" y="7" width="435" height="30"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                            <segments>
+                                                <segment title="Location"/>
+                                                <segment title="Description"/>
+                                            </segments>
+                                            <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                            <connections>
+                                                <action selector="btnSegmentedControlClick:" destination="8RV-qz-PIs" eventType="valueChanged" id="8XZ-44-lmF"/>
+                                            </connections>
+                                        </segmentedControl>
+                                    </barButtonItem>
+                                    <barButtonItem title="Unit" width="145" style="plain" id="jon-a8-Xyn">
+                                        <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="Ifo-Ss-vrZ">
+                                            <rect key="frame" x="690" y="6" width="145" height="33"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <state key="normal" title="Unit">
+                                                <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                            </state>
+                                        </button>
+                                    </barButtonItem>
+                                    <barButtonItem width="180" style="plain" id="Qyh-kE-0en">
+                                        <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="aYu-u0-dkU">
+                                            <rect key="frame" x="845" y="6" width="180" height="33"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <state key="normal" title="Incident Date">
+                                                <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                            </state>
+                                        </button>
+                                    </barButtonItem>
+                                </items>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <color key="barTintColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                            </toolbar>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="L22-7A-GpX">
+                                <rect key="frame" x="0.0" y="420" width="1024" height="368"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <connections>
+                                    <outlet property="dataSource" destination="8RV-qz-PIs" id="UNo-Ii-7WJ"/>
+                                    <outlet property="delegate" destination="8RV-qz-PIs" id="btt-34-Z2b"/>
+                                </connections>
+                            </tableView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <toolbarItems/>
+                    <simulatedOrientationMetrics key="simulatedOrientationMetrics" orientation="landscapeRight"/>
+                    <simulatedScreenMetrics key="simulatedDestinationMetrics" type="iPad"/>
+                    <connections>
+                        <outlet property="btnAll" destination="QOg-oI-gRh" id="Kxm-R3-dWm"/>
+                        <outlet property="btnComplete" destination="Nqc-2K-0Te" id="c7e-Du-NB1"/>
+                        <outlet property="btnIncomplete" destination="CQZ-TU-5y8" id="4Tv-lr-IJE"/>
+                        <outlet property="btnReview" destination="db1-6V-grm" id="OUy-Rr-vvv"/>
+                        <outlet property="btnSegmentedControl" destination="PiW-L8-HzA" id="h2X-lT-Fzp"/>
+                        <outlet property="btnShowPractice" destination="yI0-ub-gQQ" id="97g-hc-LVF"/>
+                        <outlet property="mainTableView" destination="L22-7A-GpX" id="Zw6-T0-M2y"/>
+                        <outlet property="mapview" destination="PWV-Dp-ggl" id="MpJ-DP-Pna"/>
+                        <outlet property="toolBar" destination="VgU-PV-Xnb" id="TIg-jN-RTM"/>
+                        <outlet property="toolBar1" destination="fQD-MG-oDE" id="d9w-n8-Zgz"/>
+                        <segue destination="7bt-Xc-oGd" kind="presentation" identifier="MainToTabSegue" id="WzU-pI-ODW"/>
+                        <segue destination="tgw-65-G3e" kind="presentation" identifier="MainToPCRSegue" id="CcF-n5-isJ"/>
+                        <segue destination="7mE-Ia-8hU" kind="presentation" identifier="MainToCrew" id="z3T-rF-reo"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="yWD-VZ-IKU" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="140" y="1040"/>
+        </scene>
+        <!--Tab View Controller-->
+        <scene sceneID="rE5-Ra-ygP">
+            <objects>
+                <viewController id="7bt-Xc-oGd" customClass="TabViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="Jox-DU-P0u"/>
+                        <viewControllerLayoutGuide type="bottom" id="4Vz-7O-fhW"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="xyh-Wf-Scy">
+                        <rect key="frame" x="0.0" y="0.0" width="1024" height="768"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3wO-B2-tmZ" customClass="TabBar">
+                                <rect key="frame" x="0.0" y="694" width="1024" height="74"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="74" id="ifO-iH-CcN"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="4Vz-7O-fhW" firstAttribute="top" secondItem="3wO-B2-tmZ" secondAttribute="bottom" id="Kmr-DK-eOr"/>
+                        </constraints>
+                    </view>
+                    <simulatedOrientationMetrics key="simulatedOrientationMetrics" orientation="landscapeRight"/>
+                    <simulatedScreenMetrics key="simulatedDestinationMetrics" type="iPad"/>
+                    <connections>
+                        <outlet property="tabBar" destination="3wO-B2-tmZ" id="cKW-p4-YDI"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Fwj-Ec-tUm" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="140" y="2003"/>
+        </scene>
+        <!--CrewUI-->
+        <scene sceneID="NJT-Uq-dZY">
+            <objects>
+                <viewController storyboardIdentifier="CrewUI" title="CrewUI" id="7mE-Ia-8hU" customClass="CrewViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="rhr-oR-l32"/>
+                        <viewControllerLayoutGuide type="bottom" id="g0K-8d-F9d"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="Maz-T9-kyy">
+                        <rect key="frame" x="0.0" y="0.0" width="1024" height="768"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HBq-Oi-JSh">
+                                <rect key="frame" x="0.0" y="20" width="1024" height="44"/>
+                                <items>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="FFc-co-J1B"/>
+                                    <barButtonItem style="plain" id="0bG-jR-iHo">
+                                        <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="54n-sf-2gb">
+                                            <rect key="frame" x="939" y="6" width="65" height="33"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <state key="normal" title="Done" backgroundImage="mainMenu_btn_bg.png">
+                                                <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                            </state>
+                                            <connections>
+                                                <action selector="btnDoneClick:" destination="7mE-Ia-8hU" eventType="touchUpInside" id="CZT-45-FKA"/>
+                                            </connections>
+                                        </button>
+                                    </barButtonItem>
+                                </items>
+                            </toolbar>
+                            <tableView clipsSubviews="YES" tag="1" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="S8U-q9-2cq">
+                                <rect key="frame" x="0.0" y="150" width="305" height="567"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <connections>
+                                    <outlet property="dataSource" destination="7mE-Ia-8hU" id="VrL-Ur-oMN"/>
+                                    <outlet property="delegate" destination="7mE-Ia-8hU" id="5Co-d9-83x"/>
+                                </connections>
+                            </tableView>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="nil-ov-qaI">
+                                <rect key="frame" x="32" y="732" width="234" height="30"/>
+                                <state key="normal" title="Add Non-System User" backgroundImage="body_regular_button.png">
+                                    <color key="titleColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                            </button>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="E8E-je-MUV">
+                                <rect key="frame" x="326" y="106" width="680" height="612"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <connections>
+                                    <outlet property="dataSource" destination="7mE-Ia-8hU" id="QjY-w7-E6G"/>
+                                    <outlet property="delegate" destination="7mE-Ia-8hU" id="T7W-ee-VkH"/>
+                                </connections>
+                            </tableView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Crew Members -" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FLb-ta-XTa">
+                                <rect key="frame" x="354" y="78" width="207" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vPO-pY-mh0">
+                                <rect key="frame" x="764" y="69" width="170" height="30"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                <state key="normal" title="Primary:" backgroundImage="body_regular_button.png">
+                                    <color key="titleColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="btnPrimaryClick:" destination="7mE-Ia-8hU" eventType="touchUpInside" id="GzE-qT-BKt"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7x3-rv-Fcx">
+                                <rect key="frame" x="946" y="69" width="58" height="30"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                <state key="normal" title="Delete" backgroundImage="body_regular_button.png">
+                                    <color key="titleColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="btnDeleteClick:" destination="7mE-Ia-8hU" eventType="touchUpInside" id="mNu-ly-5ld"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GGz-hy-PbS">
+                                <rect key="frame" x="200" y="72" width="80" height="30"/>
+                                <state key="normal" title="Add Crew" backgroundImage="body_regular_button.png">
+                                    <color key="titleColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="btnAddCrew:" destination="7mE-Ia-8hU" eventType="touchUpInside" id="aT8-I1-8rc"/>
+                                </connections>
+                            </button>
+                            <containerView opaque="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cK6-y7-79t">
+                                <rect key="frame" x="326" y="720" width="680" height="45"/>
+                                <color key="backgroundColor" red="0.79215686269999996" green="0.79215686269999996" blue="0.79215686269999996" alpha="1" colorSpace="calibratedRGB"/>
+                                <connections>
+                                    <segue destination="juX-QR-McC" kind="embed" id="JWH-sb-pyd"/>
+                                </connections>
+                            </containerView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Select Shift" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2IL-eF-mbB">
+                                <rect key="frame" x="344" y="732" width="100" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xkh-AH-ghx">
+                                <rect key="frame" x="470" y="722" width="520" height="40"/>
+                                <state key="normal">
+                                    <color key="titleColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="btnSelectShiftClick:" destination="7mE-Ia-8hU" eventType="touchUpInside" id="MXB-xM-0Nk"/>
+                                </connections>
+                            </button>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="Kiy-BF-hgl">
+                                <rect key="frame" x="9" y="73" width="160" height="29"/>
+                                <segments>
+                                    <segment title="Unit Users"/>
+                                    <segment title="All Users"/>
+                                </segments>
+                                <color key="tintColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <connections>
+                                    <action selector="btnSegmentControlClick:" destination="7mE-Ia-8hU" eventType="valueChanged" id="L8Z-wZ-BaJ"/>
+                                </connections>
+                            </segmentedControl>
+                            <searchBar contentMode="redraw" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="DRs-Dn-s71">
+                                <rect key="frame" x="1" y="105" width="305" height="44"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </searchBar>
+                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Zfy-dx-xQE">
+                                <rect key="frame" x="306" y="64" width="1" height="704"/>
+                                <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" red="0.93725490199999995" green="0.93725490199999995" blue="0.95686274510000002" alpha="1" colorSpace="calibratedRGB"/>
+                    </view>
+                    <simulatedOrientationMetrics key="simulatedOrientationMetrics" orientation="landscapeRight"/>
+                    <simulatedScreenMetrics key="simulatedDestinationMetrics" type="iPad"/>
+                    <connections>
+                        <outlet property="btnPrimaryUser" destination="vPO-pY-mh0" id="EGk-Mf-Dl0"/>
+                        <outlet property="btnSelectShift" destination="xkh-AH-ghx" id="cSz-uj-YQV"/>
+                        <outlet property="containerView3" destination="cK6-y7-79t" id="iya-br-jxe"/>
+                        <outlet property="searchbar" destination="DRs-Dn-s71" id="dzp-42-hk6"/>
+                        <outlet property="segmentControl" destination="Kiy-BF-hgl" id="Txz-qj-oMQ"/>
+                        <outlet property="table" destination="S8U-q9-2cq" id="SA1-XA-h8C"/>
+                        <outlet property="toolBar" destination="HBq-Oi-JSh" id="7Ve-lx-TQY"/>
+                        <outlet property="tvCrew" destination="E8E-je-MUV" id="Uhq-lW-VfG"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="DaS-qM-daE" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1290" y="1323"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="DRt-EQ-cXO">
+            <objects>
+                <viewController id="L92-kP-k9c" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="ARE-ma-gDd"/>
+                        <viewControllerLayoutGuide type="bottom" id="bxA-eq-GTW"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="Ag9-ew-FJY">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="T0s-e3-U2J" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+        </scene>
+        <!--PCR-->
+        <scene sceneID="8TB-fP-mIZ">
+            <objects>
+                <viewController storyboardIdentifier="PCR" title="PCR" id="tgw-65-G3e" customClass="PCRViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="fdR-k4-sHB"/>
+                        <viewControllerLayoutGuide type="bottom" id="Mca-mG-qJ8"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="ajP-V0-vmb">
+                        <rect key="frame" x="0.0" y="0.0" width="1024" height="768"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="xwG-Ig-etK">
+                                <rect key="frame" x="0.0" y="20" width="1024" height="44"/>
+                                <items>
+                                    <barButtonItem style="plain" id="VgA-WZ-wYt">
+                                        <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="nJX-DV-aAw">
+                                            <rect key="frame" x="20" y="5" width="44" height="34"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <state key="normal" backgroundImage="icon_back.png">
+                                                <color key="titleShadowColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                            </state>
+                                            <connections>
+                                                <action selector="btnDelete:" destination="tgw-65-G3e" eventType="touchUpInside" id="wVQ-PD-KQ9"/>
+                                            </connections>
+                                        </button>
+                                    </barButtonItem>
+                                    <barButtonItem width="830" style="plain" systemItem="fixedSpace" id="VFe-7B-fuG"/>
+                                    <barButtonItem style="plain" id="uPa-0r-aQ2">
+                                        <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="bdP-bd-Q2U">
+                                            <rect key="frame" x="904" y="6" width="44" height="33"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <state key="normal" backgroundImage="fax.png"/>
+                                            <connections>
+                                                <action selector="btnFaxPressed:" destination="tgw-65-G3e" eventType="touchUpInside" id="9Hj-X9-BJ4"/>
+                                            </connections>
+                                        </button>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" id="vAw-ad-GSc">
+                                        <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="HnU-4M-ufa">
+                                            <rect key="frame" x="958" y="6" width="44" height="33"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <state key="normal" backgroundImage="print.png"/>
+                                            <connections>
+                                                <action selector="btnPrintClick:" destination="tgw-65-G3e" eventType="touchUpInside" id="F10-oL-z9f"/>
+                                            </connections>
+                                        </button>
+                                    </barButtonItem>
+                                </items>
+                            </toolbar>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <simulatedOrientationMetrics key="simulatedOrientationMetrics" orientation="landscapeRight"/>
+                    <simulatedScreenMetrics key="simulatedDestinationMetrics" type="iPad"/>
+                    <connections>
+                        <outlet property="btnBarPrint" destination="vAw-ad-GSc" id="9yl-EL-UOz"/>
+                        <outlet property="toolBar" destination="xwG-Ig-etK" id="g63-hA-uA8"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="cHg-xE-TFZ" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1277" y="956"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="utT-Bu-lUp">
+            <objects>
+                <viewController id="9X1-lS-5s5" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="T0G-Sg-1PC"/>
+                        <viewControllerLayoutGuide type="bottom" id="qcW-ES-C7i"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="wrK-da-nIy">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="yWw-7e-Chj" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="MIE-7U-gE4">
+            <objects>
+                <viewController id="juX-QR-McC" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="YZU-7m-Mht"/>
+                        <viewControllerLayoutGuide type="bottom" id="Z1C-xw-Hia"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="kL9-Fh-qR3">
+                        <rect key="frame" x="0.0" y="0.0" width="680" height="45"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="5XK-dj-Def" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1248" y="-135.5"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="body_regular_button.png" width="231" height="46"/>
+        <image name="btn_background_Big.png" width="160" height="70"/>
+        <image name="fax.png" width="44" height="31"/>
+        <image name="icon_back.png" width="44" height="31"/>
+        <image name="icon_btn_add.png" width="44" height="31"/>
+        <image name="icon_button_bkg.png" width="44" height="31"/>
+        <image name="ipad_logo_white.png" width="380" height="340"/>
+        <image name="login_btn_bg.png" width="300" height="29"/>
+        <image name="mainMenu_btn_bg.png" width="180" height="59"/>
+        <image name="print.png" width="44" height="31"/>
+        <image name="sub_navigation_bar_bkg.png" width="1024" height="44"/>
+    </resources>
+</document>

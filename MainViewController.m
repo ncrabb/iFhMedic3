@@ -125,7 +125,7 @@
     if (CheckConnection.hasConnectivity)
     {
         backupStart = 1;
-
+        
         [self DownloadTicketInfo];
         [self DownloadTicketInputsInfo];
         [self DownloadTicketAttachmentsInfo];
@@ -150,80 +150,84 @@
         {
             self.ticketData = [DAO executeSelectTickets:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sql];
         }
-
-        transfer = false;
-        backupStart = 0;
+        
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.mainTableView reloadData];
             
         });
+        
+        //   [self.mainTableView reloadData];
+        transfer = false;
+        backupStart = 0;
     }
 }
 
 - (void) downloadTicketFormsInputs
 {
-    NSInteger result = 0;
-    Reachability* hostReach = [Reachability reachabilityWithHostName:g_WEBSERVICE];
-    BOOL connectionRequired= [hostReach connectionRequired];
-    if (!connectionRequired)
-    {
-        @try {
-            
-            ServiceSoapBinding *binding = [[ServiceSvc ServiceSoapBinding] initWithAddress:g_WEBSERVICE];
-            binding.logXMLInOut = NO;
-            ServiceSvc_GetReviewTransferTicketForms *req = [[ServiceSvc_GetReviewTransferTicketForms alloc] init];
-            req.User = [g_SETTINGS objectForKey:@"UserID"];
-            req.CustomerID = [g_SETTINGS objectForKey:@"CustomerID"];
-            req.MachineID = nil;
-            req.Unit = [g_SETTINGS objectForKey:@"Unit"];
-            ServiceSoapBindingResponse* resp = [binding GetReviewTransferTicketFormsUsingParameters:req];
-            
-            for (id mine in resp.bodyParts)
-            {
-                if ([mine isKindOfClass:[ServiceSvc_GetReviewTransferTicketFormsResponse class]])
+    @autoreleasepool {
+        NSInteger result = 0;
+        Reachability* hostReach = [Reachability reachabilityWithHostName:g_WEBSERVICE];
+        BOOL connectionRequired= [hostReach connectionRequired];
+        if (!connectionRequired)
+        {
+            @try {
+                
+                ServiceSoapBinding *binding = [[ServiceSvc ServiceSoapBinding] initWithAddress:g_WEBSERVICE];
+                binding.logXMLInOut = NO;
+                ServiceSvc_GetReviewTransferTicketForms *req = [[ServiceSvc_GetReviewTransferTicketForms alloc] init];
+                req.User = [g_SETTINGS objectForKey:@"UserID"];
+                req.CustomerID = [g_SETTINGS objectForKey:@"CustomerID"];
+                req.MachineID = nil;
+                req.Unit = [g_SETTINGS objectForKey:@"Unit"];
+                ServiceSoapBindingResponse* resp = [binding GetReviewTransferTicketFormsUsingParameters:req];
+                
+                for (id mine in resp.bodyParts)
                 {
-                    ServiceSvc_ArrayOfClsTicketFormsInputs* resultArray = [mine GetReviewTransferTicketFormsResult];
-                    NSMutableArray* array = [resultArray ClsTicketFormsInputs];
-                    
-                    for (int i = 0; i < [array count]; i++)
+                    if ([mine isKindOfClass:[ServiceSvc_GetReviewTransferTicketFormsResponse class]])
                     {
-                        ServiceSvc_ClsTicketFormsInputs* record = [array objectAtIndex:i];
-                        NSString* TicketID = [record valueForKey:@"TicketID"];
-                        NSString* FormID = [record valueForKey:@"FormID"];
-                        NSString* FormInputID = [record valueForKey:@"InputSubID"];
-  
-                        NSString* sqlStr = [NSString stringWithFormat:@"Select count(*) from TicketFormsInputs where TicketID = %@ and FormID = %@ and FormInputID = %@", TicketID , FormID, FormInputID];
+                        ServiceSvc_ArrayOfClsTicketFormsInputs* resultArray = [mine GetReviewTransferTicketFormsResult];
+                        NSMutableArray* array = [resultArray ClsTicketFormsInputs];
                         
-                        NSInteger count;
-                        @synchronized(g_SYNCDATADB)
+                        for (int i = 0; i < [array count]; i++)
                         {
-                            count = [DAO getCount:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sqlStr];
-                        }
-                        if (count < 1)
-                        {
-                            NSString* FormInputValue = [self removeNull:[record valueForKey:@"FormInputValue"]];
-
-                            NSString* Deleted = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Deleted"]]];
-                            NSString* Modified = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Modified"]]];
+                            ServiceSvc_ClsTicketFormsInputs* record = [array objectAtIndex:i];
+                            NSString* TicketID = [record valueForKey:@"TicketID"];
+                            NSString* FormID = [record valueForKey:@"FormID"];
+                            NSString* FormInputID = [record valueForKey:@"InputSubID"];
                             
+                            NSString* sqlStr = [NSString stringWithFormat:@"Select count(*) from TicketFormsInputs where TicketID = %@ and FormID = %@ and FormInputID = %@", TicketID , FormID, FormInputID];
                             
-                            NSString* sql = [NSString stringWithFormat:@"Insert into TicketFormsInputs(LocalTicketID, TicketID, FormID, FormInputID, FormInputValue, Deleted, Modified, IsUploaded) Values(0, %@, %@, %@,'%@', %@, %@, 1)", TicketID, FormID, FormInputID, FormInputValue, Deleted, Modified];
+                            NSInteger count;
                             @synchronized(g_SYNCDATADB)
                             {
-                                [DAO executeInsert:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sql];
+                                count = [DAO getCount:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sqlStr];
+                            }
+                            if (count < 1)
+                            {
+                                NSString* FormInputValue = [self removeNull:[record valueForKey:@"FormInputValue"]];
+                                
+                                NSString* Deleted = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Deleted"]]];
+                                NSString* Modified = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Modified"]]];
+                                
+                                
+                                NSString* sql = [NSString stringWithFormat:@"Insert into TicketFormsInputs(LocalTicketID, TicketID, FormID, FormInputID, FormInputValue, Deleted, Modified, IsUploaded) Values(0, %@, %@, %@,'%@', %@, %@, 1)", TicketID, FormID, FormInputID, FormInputValue, Deleted, Modified];
+                                @synchronized(g_SYNCDATADB)
+                                {
+                                    [DAO executeInsert:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sql];
+                                }
                             }
                         }
+                        result = 1;
+                        
                     }
-                    result = 1;
-                    
                 }
             }
-        }
-        @catch (NSException *exception) {
-            result = -1;
-        }
-        @finally {
-            
+            @catch (NSException *exception) {
+                result = -1;
+            }
+            @finally {
+                
+            }
         }
     }
 }
@@ -231,66 +235,68 @@
 
 - (void) DownloadNotes
 {
-    NSInteger result = 0;
-    Reachability* hostReach = [Reachability reachabilityWithHostName:g_WEBSERVICE];
-    BOOL connectionRequired= [hostReach connectionRequired];
-    if (!connectionRequired)
-    {
-        @try {
-            
-            ServiceSoapBinding *binding = [[ServiceSvc ServiceSoapBinding] initWithAddress:g_WEBSERVICE];
-            binding.logXMLInOut = NO;
-            ServiceSvc_GetReviewTransferTicketNotes *req = [[ServiceSvc_GetReviewTransferTicketNotes alloc] init];
-            req.User = [g_SETTINGS objectForKey:@"UserID"];
-            req.CustomerID = [g_SETTINGS objectForKey:@"CustomerID"];
-            req.MachineID = nil;
-            req.Unit = [g_SETTINGS objectForKey:@"Unit"];
-            ServiceSoapBindingResponse* resp = [binding GetReviewTransferTicketNotesUsingParameters:req];
-            for (id mine in resp.bodyParts)
-            {
-                if ([mine isKindOfClass:[ServiceSvc_GetReviewTransferTicketNotesResponse class]])
+    @autoreleasepool {
+        NSInteger result = 0;
+        Reachability* hostReach = [Reachability reachabilityWithHostName:g_WEBSERVICE];
+        BOOL connectionRequired= [hostReach connectionRequired];
+        if (!connectionRequired)
+        {
+            @try {
+                
+                ServiceSoapBinding *binding = [[ServiceSvc ServiceSoapBinding] initWithAddress:g_WEBSERVICE];
+                binding.logXMLInOut = NO;
+                ServiceSvc_GetReviewTransferTicketNotes *req = [[ServiceSvc_GetReviewTransferTicketNotes alloc] init];
+                req.User = [g_SETTINGS objectForKey:@"UserID"];
+                req.CustomerID = [g_SETTINGS objectForKey:@"CustomerID"];
+                req.MachineID = nil;
+                req.Unit = [g_SETTINGS objectForKey:@"Unit"];
+                ServiceSoapBindingResponse* resp = [binding GetReviewTransferTicketNotesUsingParameters:req];
+                for (id mine in resp.bodyParts)
                 {
-                    ServiceSvc_ArrayOfClsTicketNotes* resultArray = [mine GetReviewTransferTicketNotesResult];
-                    NSMutableArray* array = [resultArray ClsTicketNotes];
-                    
-                    for (int i = 0; i < [array count]; i++)
+                    if ([mine isKindOfClass:[ServiceSvc_GetReviewTransferTicketNotesResponse class]])
                     {
-                        ServiceSvc_ClsTicketNotes* record = [array objectAtIndex:i];
-                        NSString* TicketID = [record valueForKey:@"TicketID"];
-                        NSString* NoteUID = [record valueForKey:@"NoteUID"];
+                        ServiceSvc_ArrayOfClsTicketNotes* resultArray = [mine GetReviewTransferTicketNotesResult];
+                        NSMutableArray* array = [resultArray ClsTicketNotes];
                         
-                        NSString* sqlStr = [NSString stringWithFormat:@"Select count(*) from TicketNotes where TicketID = %@ and NoteUID = %@", TicketID , NoteUID];
-                        
-                        NSInteger count;
-                        @synchronized(g_SYNCDATADB)
+                        for (int i = 0; i < [array count]; i++)
                         {
-                            count = [DAO getCount:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sqlStr];
-                        }
-                        if (count < 1)
-                        {
-                            NSString* Note = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Note"]]];
-
-                            NSString* NoteTime = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"NoteTime"]]];
-//                            NSString* Deleted = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Deleted"]]];
+                            ServiceSvc_ClsTicketNotes* record = [array objectAtIndex:i];
+                            NSString* TicketID = [record valueForKey:@"TicketID"];
+                            NSString* NoteUID = [record valueForKey:@"NoteUID"];
                             
+                            NSString* sqlStr = [NSString stringWithFormat:@"Select count(*) from TicketNotes where TicketID = %@ and NoteUID = %@", TicketID , NoteUID];
                             
-                            NSString* sql = [NSString stringWithFormat:@"Insert into TicketNotes(LocalTicketID, TicketID, NoteUID, Note, NoteTime, IsUploaded) Values(0, %@, %@, '%@', '%@', 1)", TicketID, NoteUID, Note, NoteTime];
+                            NSInteger count;
                             @synchronized(g_SYNCDATADB)
                             {
-                                [DAO executeInsert:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sql];
+                                count = [DAO getCount:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sqlStr];
+                            }
+                            if (count < 1)
+                            {
+                                NSString* Note = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Note"]]];
+                                
+                                NSString* NoteTime = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"NoteTime"]]];
+                                //                            NSString* Deleted = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Deleted"]]];
+                                
+                                
+                                NSString* sql = [NSString stringWithFormat:@"Insert into TicketNotes(LocalTicketID, TicketID, NoteUID, Note, NoteTime, IsUploaded) Values(0, %@, %@, '%@', '%@', 1)", TicketID, NoteUID, Note, NoteTime];
+                                @synchronized(g_SYNCDATADB)
+                                {
+                                    [DAO executeInsert:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sql];
+                                }
                             }
                         }
+                        result = 1;
+                        
                     }
-                    result = 1;
-                    
                 }
             }
-        }
-        @catch (NSException *exception) {
-            result = -1;
-        }
-        @finally {
-            
+            @catch (NSException *exception) {
+                result = -1;
+            }
+            @finally {
+                
+            }
         }
     }
 }
@@ -298,162 +304,165 @@
 
 - (void) DownloadTicketInfo
 {
-    NSInteger result = 0;
-    Reachability* hostReach = [Reachability reachabilityWithHostName:g_WEBSERVICE];
-    BOOL connectionRequired= [hostReach connectionRequired];
-    if (!connectionRequired)
-    {
-        @try {
-
-            ServiceSoapBinding *binding = [[ServiceSvc ServiceSoapBinding] initWithAddress:g_WEBSERVICE];
-            binding.logXMLInOut = NO;
-            ServiceSvc_GetReviewTransferTickets *req = [[ServiceSvc_GetReviewTransferTickets alloc] init];
-            req.User = [g_SETTINGS objectForKey:@"UserID"];
-            req.CustomerID = [g_SETTINGS objectForKey:@"CustomerID"];
-            req.MachineID = nil;
-            req.Unit = [g_SETTINGS objectForKey:@"Unit"];
-            ServiceSoapBindingResponse* resp = [binding GetReviewTransferTicketsUsingParameters:req];
-            for (id mine in resp.bodyParts)
-            {
-                if ([mine isKindOfClass:[ServiceSvc_GetReviewTransferTicketsResponse class]])
+    @autoreleasepool {
+        NSInteger result = 0;
+        Reachability* hostReach = [Reachability reachabilityWithHostName:g_WEBSERVICE];
+        BOOL connectionRequired= [hostReach connectionRequired];
+        if (!connectionRequired)
+        {
+            @try {
+                
+                ServiceSoapBinding *binding = [[ServiceSvc ServiceSoapBinding] initWithAddress:g_WEBSERVICE];
+                binding.logXMLInOut = NO;
+                ServiceSvc_GetReviewTransferTickets *req = [[ServiceSvc_GetReviewTransferTickets alloc] init];
+                req.User = [g_SETTINGS objectForKey:@"UserID"];
+                req.CustomerID = [g_SETTINGS objectForKey:@"CustomerID"];
+                req.MachineID = nil;
+                req.Unit = [g_SETTINGS objectForKey:@"Unit"];
+                ServiceSoapBindingResponse* resp = [binding GetReviewTransferTicketsUsingParameters:req];
+                for (id mine in resp.bodyParts)
                 {
-                    ServiceSvc_ArrayOfClsTickets* resultArray = [mine GetReviewTransferTicketsResult];
-                    NSMutableArray* array = [resultArray ClsTickets];
-
-                    for (int i = 0; i < [array count]; i++)
+                    if ([mine isKindOfClass:[ServiceSvc_GetReviewTransferTicketsResponse class]])
                     {
-                        ServiceSvc_ClsTickets* record = [array objectAtIndex:i];
-                        NSString* TicketID = [record valueForKey:@"TicketID"];
-                        NSString* sqlStr = [NSString stringWithFormat:@"Select count(*) from Tickets where TicketID = %@", TicketID ];
+                        ServiceSvc_ArrayOfClsTickets* resultArray = [mine GetReviewTransferTicketsResult];
+                        NSMutableArray* array = [resultArray ClsTickets];
                         
-                        NSInteger count;
-                        @synchronized(g_SYNCDATADB)
+                        for (int i = 0; i < [array count]; i++)
                         {
-                             count = [DAO getCount:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sqlStr];
-                        }
-                        if (count < 1)
-                        {
-                            NSString* TicketGUID = [record valueForKey:@"TicketGUID"];
-                            NSString* TicketIncidentNumber = [record valueForKey:@"TicketIncidentNumber"];
-                            NSString* TicketDesc = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketDesc"]]];
-                            NSString* TicketDOS = [self removeNull:[record valueForKey:@"TicketDOS"]];
-                            NSString* TicketStatus = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketStatus"]]];
-                            NSString* TicketOwner = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketOwner"]]];
-                            NSString* TicketCreator = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketCreator"]]];
-                            NSString* TicketUnitNumber = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketUnitNumber"]]];
-                            NSString* TicketFinalized = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketFinalized"]]];
-                            NSString* TicketDateFinalized = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketDateFinalized"]]];
-                            NSString* TicketCrew = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketCrew"]]];
-                            NSString* TicketPractice = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketPractice"]]];
-                            NSString* TicketCreatedTime = [self removeNull:[record valueForKey:@"TicketCreatedTime"]];
-                            NSString* TicketShift = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketShift"]]];
-                            NSString* TicketLocked = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketLocked"]]];
-                            NSString* TicketReviewed = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketReviewed"]]];
-                            NSString* TicketAccount = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketAccount"]]];
-                            NSString* TicketAdminNotes = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketAdminNotes"]]];
+                            ServiceSvc_ClsTickets* record = [array objectAtIndex:i];
+                            NSString* TicketID = [record valueForKey:@"TicketID"];
+                            NSString* sqlStr = [NSString stringWithFormat:@"Select count(*) from Tickets where TicketID = %@", TicketID ];
                             
-                            NSString* sql = [NSString stringWithFormat:@"Insert into Tickets(TicketID, TicketGUID, TicketIncidentNumber, TicketDesc, TicketDOS, TicketStatus, TicketOwner, TicketCreator, TicketUnitNumber, TicketFinalized, TicketDateFinalized, TicketCrew, TicketPractice, TicketCreatedTime, TicketShift, TicketLocked, TicketReviewed, TicketAccount, TicketAdminNotes, IsUploaded) Values(%@, '%@', '%@','%@', '%@', %@, %@, %@, %@, %@, '%@', '%@', %@, '%@', %@, %@, %@, %@, '%@', 1)", TicketID, TicketGUID, TicketIncidentNumber, TicketDesc, TicketDOS, TicketStatus, TicketOwner, TicketCreator, TicketUnitNumber, TicketFinalized, TicketDateFinalized, TicketCrew, TicketPractice, TicketCreatedTime, TicketShift, TicketLocked, TicketReviewed, TicketAccount, TicketAdminNotes];
+                            NSInteger count;
                             @synchronized(g_SYNCDATADB)
                             {
-                                [DAO executeInsert:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sql];
+                                count = [DAO getCount:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sqlStr];
                             }
-                        }
-                        else
-                        {
-                            NSString* TicketPractice = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketPractice"]]];
-
-                            NSString* TicketShift = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketShift"]]];
-                            NSString* TicketLocked = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketLocked"]]];
-                            NSString* TicketReviewed = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketReviewed"]]];
-                            NSString* TicketAccount = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketAccount"]]];
-                            NSString* TicketAdminNotes = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketAdminNotes"]]];
-                             NSString* TicketStatus = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketStatus"]]];
-                            
-                            NSString* sql = [NSString stringWithFormat:@"Update Tickets set TicketPractice = %@, TicketShift = %@, TicketLocked = %@, TicketReviewed = %@, TicketAdminNotes = '%@', TicketAccount = %@, TicketStatus = %@ where ticketID = %@", TicketPractice, TicketShift, TicketLocked, TicketReviewed, TicketAdminNotes, TicketAccount, TicketStatus, TicketID];
-                            @synchronized(g_SYNCDATADB)
+                            if (count < 1)
                             {
-                                [DAO executeUpdate:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sql];
+                                NSString* TicketGUID = [record valueForKey:@"TicketGUID"];
+                                NSString* TicketIncidentNumber = [record valueForKey:@"TicketIncidentNumber"];
+                                NSString* TicketDesc = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketDesc"]]];
+                                NSString* TicketDOS = [self removeNull:[record valueForKey:@"TicketDOS"]];
+                                NSString* TicketStatus = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketStatus"]]];
+                                NSString* TicketOwner = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketOwner"]]];
+                                NSString* TicketCreator = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketCreator"]]];
+                                NSString* TicketUnitNumber = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketUnitNumber"]]];
+                                NSString* TicketFinalized = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketFinalized"]]];
+                                NSString* TicketDateFinalized = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketDateFinalized"]]];
+                                NSString* TicketCrew = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketCrew"]]];
+                                NSString* TicketPractice = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketPractice"]]];
+                                NSString* TicketCreatedTime = [self removeNull:[record valueForKey:@"TicketCreatedTime"]];
+                                NSString* TicketShift = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketShift"]]];
+                                NSString* TicketLocked = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketLocked"]]];
+                                NSString* TicketReviewed = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketReviewed"]]];
+                                NSString* TicketAccount = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketAccount"]]];
+                                NSString* TicketAdminNotes = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketAdminNotes"]]];
+                                
+                                NSString* sql = [NSString stringWithFormat:@"Insert into Tickets(TicketID, TicketGUID, TicketIncidentNumber, TicketDesc, TicketDOS, TicketStatus, TicketOwner, TicketCreator, TicketUnitNumber, TicketFinalized, TicketDateFinalized, TicketCrew, TicketPractice, TicketCreatedTime, TicketShift, TicketLocked, TicketReviewed, TicketAccount, TicketAdminNotes, IsUploaded) Values(%@, '%@', '%@','%@', '%@', %@, %@, %@, %@, %@, '%@', '%@', %@, '%@', %@, %@, %@, %@, '%@', 1)", TicketID, TicketGUID, TicketIncidentNumber, TicketDesc, TicketDOS, TicketStatus, TicketOwner, TicketCreator, TicketUnitNumber, TicketFinalized, TicketDateFinalized, TicketCrew, TicketPractice, TicketCreatedTime, TicketShift, TicketLocked, TicketReviewed, TicketAccount, TicketAdminNotes];
+                                @synchronized(g_SYNCDATADB)
+                                {
+                                    [DAO executeInsert:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sql];
+                                }
+                            }
+                            else
+                            {
+                                NSString* TicketPractice = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketPractice"]]];
+                                
+                                NSString* TicketShift = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketShift"]]];
+                                NSString* TicketLocked = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketLocked"]]];
+                                NSString* TicketReviewed = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketReviewed"]]];
+                                NSString* TicketAccount = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketAccount"]]];
+                                NSString* TicketAdminNotes = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketAdminNotes"]]];
+                                NSString* TicketStatus = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketStatus"]]];
+                                
+                                NSString* sql = [NSString stringWithFormat:@"Update Tickets set TicketPractice = %@, TicketShift = %@, TicketLocked = %@, TicketReviewed = %@, TicketAdminNotes = '%@', TicketAccount = %@, TicketStatus = %@ where ticketID = %@", TicketPractice, TicketShift, TicketLocked, TicketReviewed, TicketAdminNotes, TicketAccount, TicketStatus, TicketID];
+                                @synchronized(g_SYNCDATADB)
+                                {
+                                    [DAO executeUpdate:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sql];
+                                }
                             }
                         }
+                        result = 1;
+                        
                     }
-                    result = 1;
-                    
                 }
             }
-        }
-        @catch (NSException *exception) {
-            result = -1;
-        }
-        @finally {
-
+            @catch (NSException *exception) {
+                result = -1;
+            }
+            @finally {
+                
+            }
         }
     }
 }
 
 - (void) DownloadTicketInputsInfo
 {
-    NSInteger result = 0;
-    Reachability* hostReach = [Reachability reachabilityWithHostName:g_WEBSERVICE];
-    BOOL connectionRequired= [hostReach connectionRequired];
-    if (!connectionRequired)
-    {
-        @try {
-            
-            ServiceSoapBinding *binding = [[ServiceSvc ServiceSoapBinding] initWithAddress:g_WEBSERVICE];
-            binding.logXMLInOut = NO;
-            ServiceSvc_GetReviewTransferTicketInputs *req = [[ServiceSvc_GetReviewTransferTicketInputs alloc] init];
-            req.User = [g_SETTINGS objectForKey:@"UserID"];
-            req.CustomerID = [g_SETTINGS objectForKey:@"CustomerID"];
-            req.MachineID = nil;
-            req.Unit = [g_SETTINGS objectForKey:@"Unit"];
-            ServiceSoapBindingResponse* resp = [binding GetReviewTransferTicketInputsUsingParameters:req];
-            for (id mine in resp.bodyParts)
-            {
-                if ([mine isKindOfClass:[ServiceSvc_GetReviewTransferTicketInputsResponse class]])
+    @autoreleasepool {
+        NSInteger result = 0;
+        Reachability* hostReach = [Reachability reachabilityWithHostName:g_WEBSERVICE];
+        BOOL connectionRequired= [hostReach connectionRequired];
+        if (!connectionRequired)
+        {
+            @try {
+                
+                ServiceSoapBinding *binding = [[ServiceSvc ServiceSoapBinding] initWithAddress:g_WEBSERVICE];
+                binding.logXMLInOut = NO;
+                ServiceSvc_GetReviewTransferTicketInputs *req = [[ServiceSvc_GetReviewTransferTicketInputs alloc] init];
+                req.User = [g_SETTINGS objectForKey:@"UserID"];
+                req.CustomerID = [g_SETTINGS objectForKey:@"CustomerID"];
+                req.MachineID = nil;
+                req.Unit = [g_SETTINGS objectForKey:@"Unit"];
+                ServiceSoapBindingResponse* resp = [binding GetReviewTransferTicketInputsUsingParameters:req];
+                for (id mine in resp.bodyParts)
                 {
-                    ServiceSvc_ArrayOfClsTicketInputs* resultArray = [mine GetReviewTransferTicketInputsResult];
-                    NSMutableArray* array = [resultArray ClsTicketInputs];
-                    
-                    for (int i = 0; i < [array count]; i++)
+                    if ([mine isKindOfClass:[ServiceSvc_GetReviewTransferTicketInputsResponse class]])
                     {
-                        ServiceSvc_ClsTicketInputs* record = [array objectAtIndex:i];
-                        NSString* TicketID = [record valueForKey:@"TicketID"];
-                        NSString* InputID = [record valueForKey:@"InputID"];
-                        NSString* InputSubID = [record valueForKey:@"InputSubID"];
-                        NSString* InputInstance = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"InputInstance"]]];
-                        NSString* sqlStr = [NSString stringWithFormat:@"Select count(*) from TicketInputs where TicketID = %@ and InputID = %@ and InputSubID = %@ and InputInstance = %@", TicketID , InputID, InputSubID, InputInstance];
+                        ServiceSvc_ArrayOfClsTicketInputs* resultArray = [mine GetReviewTransferTicketInputsResult];
+                        NSMutableArray* array = [resultArray ClsTicketInputs];
                         
-                        NSInteger count;
-                        @synchronized(g_SYNCDATADB)
+                        for (int i = 0; i < [array count]; i++)
                         {
-                            count = [DAO getCount:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sqlStr];
-                        }
-                        if (count < 1)
-                        {
-                            NSString* InputPage = [self removeNull:[record valueForKey:@"InputPage"]];
-                            NSString* InputName = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"InputName"]]];
-                            NSString* InputValue = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"InputValue"]]];
-                            NSString* Deleted = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Deleted"]]];
-                            NSString* Modified = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Modified"]]];
-                          
+                            ServiceSvc_ClsTicketInputs* record = [array objectAtIndex:i];
+                            NSString* TicketID = [record valueForKey:@"TicketID"];
+                            NSString* InputID = [record valueForKey:@"InputID"];
+                            NSString* InputSubID = [record valueForKey:@"InputSubID"];
+                            NSString* InputInstance = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"InputInstance"]]];
+                            NSString* sqlStr = [NSString stringWithFormat:@"Select count(*) from TicketInputs where TicketID = %@ and InputID = %@ and InputSubID = %@ and InputInstance = %@", TicketID , InputID, InputSubID, InputInstance];
                             
-                            NSString* sql = [NSString stringWithFormat:@"Insert into TicketInputs(LocalTicketID, TicketID, InputID, InputSubID, InputInstance, InputPage, InputName, InputValue, Deleted, Modified, IsUploaded) Values(0, %@, %@, %@, %@, '%@', '%@', '%@', %@, %@, 1)", TicketID, InputID, InputSubID, InputInstance, InputPage, InputName, InputValue, Deleted, Modified];
+                            NSInteger count;
                             @synchronized(g_SYNCDATADB)
                             {
-                                [DAO executeInsert:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sql];
+                                count = [DAO getCount:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sqlStr];
+                            }
+                            if (count < 1)
+                            {
+                                NSString* InputPage = [self removeNull:[record valueForKey:@"InputPage"]];
+                                NSString* InputName = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"InputName"]]];
+                                NSString* InputValue = [self removeChar:[NSString stringWithFormat:@"%@",[record valueForKey:@"InputValue"]]];
+                                NSString* Deleted = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Deleted"]]];
+                                NSString* Modified = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Modified"]]];
+                                
+                                NSString* sql = [NSString stringWithFormat:@"Insert into TicketInputs(LocalTicketID, TicketID, InputID, InputSubID, InputInstance, InputPage, InputName, InputValue, Deleted, Modified, IsUploaded) Values(0, %@, %@, %@, %@, '%@', '%@', '%@', %@, %@, 1)", TicketID, InputID, InputSubID, InputInstance, InputPage, InputName, InputValue, Deleted, Modified];
+                                @synchronized(g_SYNCDATADB)
+                                {
+                                    [DAO executeInsert:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sql];
+                                }
                             }
                         }
+                        result = 1;
+                        
                     }
-                    result = 1;
-                    
                 }
             }
-        }
-        @catch (NSException *exception) {
-            result = -1;
-        }
-        @finally {
-
+            @catch (NSException *exception) {
+                result = -1;
+            }
+            @finally {
+                
+            }
         }
     }
 }
@@ -461,67 +470,69 @@
 
 - (void) DownloadTicketAttachmentsInfo
 {
-    NSInteger result = 0;
-    Reachability* hostReach = [Reachability reachabilityWithHostName:g_WEBSERVICE];
-    BOOL connectionRequired= [hostReach connectionRequired];
-    if (!connectionRequired)
-    {
-        @try {
-            
-            ServiceSoapBinding *binding = [[ServiceSvc ServiceSoapBinding] initWithAddress:g_WEBSERVICE];
-            binding.logXMLInOut = NO;
-            ServiceSvc_GetReviewTransferTicketAttachments *req = [[ServiceSvc_GetReviewTransferTicketAttachments alloc] init];
-            req.User = [g_SETTINGS objectForKey:@"UserID"];
-            req.CustomerID = [g_SETTINGS objectForKey:@"CustomerID"];
-            req.MachineID = nil;
-            req.Unit = [g_SETTINGS objectForKey:@"Unit"];
-            ServiceSoapBindingResponse* resp = [binding GetReviewTransferTicketAttachmentsUsingParameters:req];
-            for (id mine in resp.bodyParts)
-            {
-                if ([mine isKindOfClass:[ServiceSvc_GetReviewTransferTicketAttachmentsResponse class]])
+    @autoreleasepool {
+        NSInteger result = 0;
+        Reachability* hostReach = [Reachability reachabilityWithHostName:g_WEBSERVICE];
+        BOOL connectionRequired= [hostReach connectionRequired];
+        if (!connectionRequired)
+        {
+            @try {
+                
+                ServiceSoapBinding *binding = [[ServiceSvc ServiceSoapBinding] initWithAddress:g_WEBSERVICE];
+                binding.logXMLInOut = NO;
+                ServiceSvc_GetReviewTransferTicketAttachments *req = [[ServiceSvc_GetReviewTransferTicketAttachments alloc] init];
+                req.User = [g_SETTINGS objectForKey:@"UserID"];
+                req.CustomerID = [g_SETTINGS objectForKey:@"CustomerID"];
+                req.MachineID = nil;
+                req.Unit = [g_SETTINGS objectForKey:@"Unit"];
+                ServiceSoapBindingResponse* resp = [binding GetReviewTransferTicketAttachmentsUsingParameters:req];
+                for (id mine in resp.bodyParts)
                 {
-                    ServiceSvc_ArrayOfClsTicketAttachments* resultArray = [mine GetReviewTransferTicketAttachmentsResult];
-                    NSMutableArray* array = [resultArray ClsTicketAttachments];
-                    
-                    for (int i = 0; i < [array count]; i++)
+                    if ([mine isKindOfClass:[ServiceSvc_GetReviewTransferTicketAttachmentsResponse class]])
                     {
-                        ServiceSvc_ClsTicketAttachments* record = [array objectAtIndex:i];
-                        NSString* TicketID = [record valueForKey:@"TicketID"];
-                        NSString* AttachmentID = [record valueForKey:@"AttachmentID"];
+                        ServiceSvc_ArrayOfClsTicketAttachments* resultArray = [mine GetReviewTransferTicketAttachmentsResult];
+                        NSMutableArray* array = [resultArray ClsTicketAttachments];
                         
-                        NSString* sqlStr = [NSString stringWithFormat:@"Select count(*) from TicketAttachments where TicketID = %@ and AttachmentID = %@", TicketID , AttachmentID];
-                        
-                        NSInteger count;
-                        @synchronized(g_SYNCBLOBSDB)
+                        for (int i = 0; i < [array count]; i++)
                         {
-                            count = [DAO getCount:[[g_SETTINGS objectForKey:@"blobsDB"] pointerValue] Sql:sqlStr];
-                        }
-                        if (count < 1)
-                        {
-                            NSString* FileType = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"FileType"]]];
-                            NSString* FileStr = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"FileStr"]]];
-                            NSString* FileName = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"FileName"]]];
-                            NSString* TimeAdded = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TimeAdded"]]];
-                            NSString* Deleted = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Deleted"]]];
+                            ServiceSvc_ClsTicketAttachments* record = [array objectAtIndex:i];
+                            NSString* TicketID = [record valueForKey:@"TicketID"];
+                            NSString* AttachmentID = [record valueForKey:@"AttachmentID"];
                             
+                            NSString* sqlStr = [NSString stringWithFormat:@"Select count(*) from TicketAttachments where TicketID = %@ and AttachmentID = %@", TicketID , AttachmentID];
                             
-                            NSString* sql = [NSString stringWithFormat:@"Insert into TicketAttachments(LocalTicketID, TicketID, AttachmentID, FileType, FileStr, FileName, TimeAdded, Deleted, IsUploaded) Values(0, %@, %@, '%@', '%@', '%@', '%@', %@, 1)", TicketID, AttachmentID, FileType, FileStr, FileName, TimeAdded, Deleted];
+                            NSInteger count;
                             @synchronized(g_SYNCBLOBSDB)
                             {
-                                [DAO executeInsert:[[g_SETTINGS objectForKey:@"blobsDB"] pointerValue] Sql:sql];
+                                count = [DAO getCount:[[g_SETTINGS objectForKey:@"blobsDB"] pointerValue] Sql:sqlStr];
+                            }
+                            if (count < 1)
+                            {
+                                NSString* FileType = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"FileType"]]];
+                                NSString* FileStr = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"FileStr"]]];
+                                NSString* FileName = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"FileName"]]];
+                                NSString* TimeAdded = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TimeAdded"]]];
+                                NSString* Deleted = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Deleted"]]];
+                                
+                                
+                                NSString* sql = [NSString stringWithFormat:@"Insert into TicketAttachments(LocalTicketID, TicketID, AttachmentID, FileType, FileStr, FileName, TimeAdded, Deleted, IsUploaded) Values(0, %@, %@, '%@', '%@', '%@', '%@', %@, 1)", TicketID, AttachmentID, FileType, FileStr, FileName, TimeAdded, Deleted];
+                                @synchronized(g_SYNCBLOBSDB)
+                                {
+                                    [DAO executeInsert:[[g_SETTINGS objectForKey:@"blobsDB"] pointerValue] Sql:sql];
+                                }
                             }
                         }
+                        result = 1;
+                        
                     }
-                    result = 1;
-                    
                 }
             }
-        }
-        @catch (NSException *exception) {
-            result = -1;
-        }
-        @finally {
-            
+            @catch (NSException *exception) {
+                result = -1;
+            }
+            @finally {
+                
+            }
         }
     }
 }
@@ -529,67 +540,69 @@
 
 - (void) DownloadTicketSignaturesInfo
 {
-    NSInteger result = 0;
-    Reachability* hostReach = [Reachability reachabilityWithHostName:g_WEBSERVICE];
-    BOOL connectionRequired= [hostReach connectionRequired];
-    if (!connectionRequired)
-    {
-        @try {
-            
-            ServiceSoapBinding *binding = [[ServiceSvc ServiceSoapBinding] initWithAddress:g_WEBSERVICE];
-            binding.logXMLInOut = NO;
-            ServiceSvc_GetReviewTransferTicketSignatures *req = [[ServiceSvc_GetReviewTransferTicketSignatures alloc] init];
-            req.User = [g_SETTINGS objectForKey:@"UserID"];
-            req.CustomerID = [g_SETTINGS objectForKey:@"CustomerID"];
-            req.MachineID = nil;
-            req.Unit = [g_SETTINGS objectForKey:@"Unit"];
-            ServiceSoapBindingResponse* resp = [binding GetReviewTransferTicketSignaturesUsingParameters:req];
-            for (id mine in resp.bodyParts)
-            {
-                if ([mine isKindOfClass:[ServiceSvc_GetReviewTransferTicketSignaturesResponse class]])
+    @autoreleasepool {
+        NSInteger result = 0;
+        Reachability* hostReach = [Reachability reachabilityWithHostName:g_WEBSERVICE];
+        BOOL connectionRequired= [hostReach connectionRequired];
+        if (!connectionRequired)
+        {
+            @try {
+                
+                ServiceSoapBinding *binding = [[ServiceSvc ServiceSoapBinding] initWithAddress:g_WEBSERVICE];
+                binding.logXMLInOut = NO;
+                ServiceSvc_GetReviewTransferTicketSignatures *req = [[ServiceSvc_GetReviewTransferTicketSignatures alloc] init];
+                req.User = [g_SETTINGS objectForKey:@"UserID"];
+                req.CustomerID = [g_SETTINGS objectForKey:@"CustomerID"];
+                req.MachineID = nil;
+                req.Unit = [g_SETTINGS objectForKey:@"Unit"];
+                ServiceSoapBindingResponse* resp = [binding GetReviewTransferTicketSignaturesUsingParameters:req];
+                for (id mine in resp.bodyParts)
                 {
-                    ServiceSvc_ArrayOfClsTicketSignatures* resultArray = [mine GetReviewTransferTicketSignaturesResult];
-                    NSMutableArray* array = [resultArray ClsTicketSignatures];
-                    
-                    for (int i = 0; i < [array count]; i++)
+                    if ([mine isKindOfClass:[ServiceSvc_GetReviewTransferTicketSignaturesResponse class]])
                     {
-                        ServiceSvc_ClsTicketSignatures* record = [array objectAtIndex:i];
-                        NSString* TicketID = [record valueForKey:@"TicketID"];
-                        NSString* SignatureID = [record valueForKey:@"SignatureID"];
+                        ServiceSvc_ArrayOfClsTicketSignatures* resultArray = [mine GetReviewTransferTicketSignaturesResult];
+                        NSMutableArray* array = [resultArray ClsTicketSignatures];
                         
-                        NSString* sqlStr = [NSString stringWithFormat:@"Select count(*) from TicketSignatures where TicketID = %@ and SignatureID = %@", TicketID , SignatureID];
-                        
-                        NSInteger count;
-                        @synchronized(g_SYNCBLOBSDB)
+                        for (int i = 0; i < [array count]; i++)
                         {
-                            count = [DAO getCount:[[g_SETTINGS objectForKey:@"blobsDB"] pointerValue] Sql:sqlStr];
-                        }
-                        if (count < 1)
-                        {
-                            NSString* SignatureType = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"SignatureType"]]];
-                            NSString* SignatureText = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"SignatureText"]]];
-                            NSString* SignatureString = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"SignatureString"]]];
-                            NSString* SignatureTime = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"SignatureTime"]]];
-                            NSString* Deleted = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Deleted"]]];
+                            ServiceSvc_ClsTicketSignatures* record = [array objectAtIndex:i];
+                            NSString* TicketID = [record valueForKey:@"TicketID"];
+                            NSString* SignatureID = [record valueForKey:@"SignatureID"];
                             
+                            NSString* sqlStr = [NSString stringWithFormat:@"Select count(*) from TicketSignatures where TicketID = %@ and SignatureID = %@", TicketID , SignatureID];
                             
-                            NSString* sql = [NSString stringWithFormat:@"Insert into TicketSignatures(LocalTicketID, TicketID, SignatureID, SignatureType, SignatureText, SignatureString, SignatureTime, Deleted, IsUploaded) Values(0, %@, %@, %@, '%@', '%@', '%@', %@, 1)", TicketID, SignatureID, SignatureType, SignatureText, SignatureString, SignatureTime, Deleted];
+                            NSInteger count;
                             @synchronized(g_SYNCBLOBSDB)
                             {
-                                [DAO executeInsert:[[g_SETTINGS objectForKey:@"blobsDB"] pointerValue] Sql:sql];
+                                count = [DAO getCount:[[g_SETTINGS objectForKey:@"blobsDB"] pointerValue] Sql:sqlStr];
+                            }
+                            if (count < 1)
+                            {
+                                NSString* SignatureType = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"SignatureType"]]];
+                                NSString* SignatureText = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"SignatureText"]]];
+                                NSString* SignatureString = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"SignatureString"]]];
+                                NSString* SignatureTime = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"SignatureTime"]]];
+                                NSString* Deleted = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Deleted"]]];
+                                
+                                
+                                NSString* sql = [NSString stringWithFormat:@"Insert into TicketSignatures(LocalTicketID, TicketID, SignatureID, SignatureType, SignatureText, SignatureString, SignatureTime, Deleted, IsUploaded) Values(0, %@, %@, %@, '%@', '%@', '%@', %@, 1)", TicketID, SignatureID, SignatureType, SignatureText, SignatureString, SignatureTime, Deleted];
+                                @synchronized(g_SYNCBLOBSDB)
+                                {
+                                    [DAO executeInsert:[[g_SETTINGS objectForKey:@"blobsDB"] pointerValue] Sql:sql];
+                                }
                             }
                         }
+                        result = 1;
+                        
                     }
-                    result = 1;
-                    
                 }
             }
-        }
-        @catch (NSException *exception) {
-            result = -1;
-        }
-        @finally {
-            
+            @catch (NSException *exception) {
+                result = -1;
+            }
+            @finally {
+                
+            }
         }
     }
 }
@@ -1002,7 +1015,7 @@
                     resp = nil;
                     req1 = nil;
                     obj1 = nil;
-                  
+                    
                 }
                 ticketInputsArray = nil;
             } // end TicketInputsCount
@@ -1157,7 +1170,7 @@
                                     }
                                 }
                             }
-
+                            
                         }
                     }
                     
@@ -1236,13 +1249,13 @@
                                     }
                                 }
                             }
-
+                            
                         }
                     }
                     
                     
                 }
-
+                
             }   // end sigcount
             
             sql = @"Select count(*) from TicketNotes where IsUploaded = 0 and TicketID > 0";
@@ -1389,7 +1402,7 @@
                                     }
                                 }
                             }
-
+                            
                         }
                     }
                 }
@@ -1412,28 +1425,28 @@
                 {
                     ServiceSvc_ArrayOfClsUnitMsgs* resultArray = [mine DoAdminUnitIpadResult];
                     NSMutableArray* array = [resultArray ClsUnitMsgs];
-                 //   NSMutableString* msgStr = [[NSMutableString alloc] init];
+                    //   NSMutableString* msgStr = [[NSMutableString alloc] init];
                     NSString* msg;
                     for (int i = 0; i < [array count]; i++)
                     {
                         ServiceSvc_ClsUnitMsgs* record = [array objectAtIndex:i];
                         msg = [record valueForKey:@"Msg"];
-                     /*   NSString* sentFrom = [record valueForKey:@"SentBy"];
-                        NSString* sentTo = [record valueForKey:@"SentTo"];
-                        NSString* msgID = [record valueForKey:@"UnitMsgsID"];
-                        NSString* timeStamp = [record valueForKey:@"TimeStamp"];
-                        NSString* msg = [record valueForKey:@"Msg"];
-                        NSString* refID = [record valueForKey:@"RefID"];  */
-                      //  [msgStr appendFormat:@"MessageID: %@ , Time: %@\n", msgID, timeStamp];
-                      //  [msgStr appendFormat:@"Sent By: %@ , Sent To: %@\n", sentFrom, sentTo];
-                      //  [msgStr appendFormat:@"Ref ID: %@ \n", refID];
-                      //  [msgStr appendFormat:@"Message: %@ \n", msg];
+                        /*   NSString* sentFrom = [record valueForKey:@"SentBy"];
+                         NSString* sentTo = [record valueForKey:@"SentTo"];
+                         NSString* msgID = [record valueForKey:@"UnitMsgsID"];
+                         NSString* timeStamp = [record valueForKey:@"TimeStamp"];
+                         NSString* msg = [record valueForKey:@"Msg"];
+                         NSString* refID = [record valueForKey:@"RefID"];  */
+                        //  [msgStr appendFormat:@"MessageID: %@ , Time: %@\n", msgID, timeStamp];
+                        //  [msgStr appendFormat:@"Sent By: %@ , Sent To: %@\n", sentFrom, sentTo];
+                        //  [msgStr appendFormat:@"Ref ID: %@ \n", refID];
+                        //  [msgStr appendFormat:@"Message: %@ \n", msg];
                     }
                     if ([array count] > 0)
                     {
                         [self performSelectorOnMainThread:@selector(msgTask:) withObject:msg waitUntilDone:NO];
                     }
-
+                    
                 }
             }
             
@@ -1458,9 +1471,9 @@
                     for (int i = 0; i < [array count]; i++)
                     {
                         ServiceSvc_ClsMachineMsgs* record = [array objectAtIndex:i];
-
+                        
                         msg = [record valueForKey:@"Msg"];
-
+                        
                     }
                     if ([array count] > 0)
                     {
@@ -4919,139 +4932,144 @@
 }
 
 
+
 - (void) downloadIncompleteTicketFormsInputs
 {
-    NSInteger result = 0;
-    Reachability* hostReach = [Reachability reachabilityWithHostName:g_WEBSERVICE];
-    BOOL connectionRequired= [hostReach connectionRequired];
-    if (!connectionRequired)
-    {
-        @try {
-            
-            ServiceSoapBinding *binding = [[ServiceSvc ServiceSoapBinding] initWithAddress:g_WEBSERVICE];
-            binding.logXMLInOut = NO;
-            ServiceSvc_GetIncompTicketForms *req = [[ServiceSvc_GetIncompTicketForms alloc] init];
-            req.User = [g_SETTINGS objectForKey:@"UserID"];
-            req.CustomerID = [g_SETTINGS objectForKey:@"CustomerID"];
-            req.MachineID = nil;
-            req.Unit = [g_SETTINGS objectForKey:@"Unit"];
-            ServiceSoapBindingResponse* resp = [binding GetIncompTicketFormsUsingParameters:req];
-            
-            for (id mine in resp.bodyParts)
-            {
-                if ([mine isKindOfClass:[ServiceSvc_GetIncompTicketFormsResponse class]])
+    @autoreleasepool {
+        NSInteger result = 0;
+        Reachability* hostReach = [Reachability reachabilityWithHostName:g_WEBSERVICE];
+        BOOL connectionRequired= [hostReach connectionRequired];
+        if (!connectionRequired)
+        {
+            @try {
+                
+                ServiceSoapBinding *binding = [[ServiceSvc ServiceSoapBinding] initWithAddress:g_WEBSERVICE];
+                binding.logXMLInOut = NO;
+                ServiceSvc_GetIncompTicketForms *req = [[ServiceSvc_GetIncompTicketForms alloc] init];
+                req.User = [g_SETTINGS objectForKey:@"UserID"];
+                req.CustomerID = [g_SETTINGS objectForKey:@"CustomerID"];
+                req.MachineID = nil;
+                req.Unit = [g_SETTINGS objectForKey:@"Unit"];
+                ServiceSoapBindingResponse* resp = [binding GetIncompTicketFormsUsingParameters:req];
+                
+                for (id mine in resp.bodyParts)
                 {
-                    ServiceSvc_ArrayOfClsTicketFormsInputs* resultArray = [mine GetIncompTicketFormsResult];
-                    NSMutableArray* array = [resultArray ClsTicketFormsInputs];
-                    
-                    for (int i = 0; i < [array count]; i++)
+                    if ([mine isKindOfClass:[ServiceSvc_GetIncompTicketFormsResponse class]])
                     {
-                        ServiceSvc_ClsTicketFormsInputs* record = [array objectAtIndex:i];
-                        NSString* TicketID = [record valueForKey:@"TicketID"];
-                        NSString* FormID = [record valueForKey:@"FormID"];
-                        NSString* FormInputID = [record valueForKey:@"InputSubID"];
+                        ServiceSvc_ArrayOfClsTicketFormsInputs* resultArray = [mine GetIncompTicketFormsResult];
+                        NSMutableArray* array = [resultArray ClsTicketFormsInputs];
                         
-                        NSString* sqlStr = [NSString stringWithFormat:@"Select count(*) from TicketFormsInputs where TicketID = %@ and FormID = %@ and FormInputID = %@", TicketID , FormID, FormInputID];
-                        
-                        NSInteger count;
-                        @synchronized(g_SYNCDATADB)
+                        for (int i = 0; i < [array count]; i++)
                         {
-                            count = [DAO getCount:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sqlStr];
-                        }
-                        if (count < 1)
-                        {
-                            NSString* FormInputValue = [self removeNull:[record valueForKey:@"FormInputValue"]];
+                            ServiceSvc_ClsTicketFormsInputs* record = [array objectAtIndex:i];
+                            NSString* TicketID = [record valueForKey:@"TicketID"];
+                            NSString* FormID = [record valueForKey:@"FormID"];
+                            NSString* FormInputID = [record valueForKey:@"InputSubID"];
                             
-                            NSString* Deleted = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Deleted"]]];
-                            NSString* Modified = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Modified"]]];
+                            NSString* sqlStr = [NSString stringWithFormat:@"Select count(*) from TicketFormsInputs where TicketID = %@ and FormID = %@ and FormInputID = %@", TicketID , FormID, FormInputID];
                             
-                            
-                            NSString* sql = [NSString stringWithFormat:@"Insert into TicketFormsInputs(LocalTicketID, TicketID, FormID, FormInputID, FormInputValue, Deleted, Modified, IsUploaded) Values(0, %@, %@, %@,'%@', %@, %@, 1)", TicketID, FormID, FormInputID, FormInputValue, Deleted, Modified];
+                            NSInteger count;
                             @synchronized(g_SYNCDATADB)
                             {
-                                [DAO executeInsert:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sql];
+                                count = [DAO getCount:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sqlStr];
+                            }
+                            if (count < 1)
+                            {
+                                NSString* FormInputValue = [self removeNull:[record valueForKey:@"FormInputValue"]];
+                                
+                                NSString* Deleted = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Deleted"]]];
+                                NSString* Modified = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Modified"]]];
+                                
+                                
+                                NSString* sql = [NSString stringWithFormat:@"Insert into TicketFormsInputs(LocalTicketID, TicketID, FormID, FormInputID, FormInputValue, Deleted, Modified, IsUploaded) Values(0, %@, %@, %@,'%@', %@, %@, 1)", TicketID, FormID, FormInputID, FormInputValue, Deleted, Modified];
+                                @synchronized(g_SYNCDATADB)
+                                {
+                                    [DAO executeInsert:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sql];
+                                }
                             }
                         }
+                        result = 1;
+                        
                     }
-                    result = 1;
-                    
                 }
             }
-        }
-        @catch (NSException *exception) {
-            result = -1;
-        }
-        @finally {
-            
+            @catch (NSException *exception) {
+                result = -1;
+            }
+            @finally {
+                
+            }
         }
     }
 }
 
 - (void) downloadIncompleteTicketChanges
 {
-    NSInteger result = 0;
-    Reachability* hostReach = [Reachability reachabilityWithHostName:g_WEBSERVICE];
-    BOOL connectionRequired= [hostReach connectionRequired];
-  
-    if (!connectionRequired)
-    {
-        @try {
-            
-            ServiceSoapBinding *binding = [[ServiceSvc ServiceSoapBinding] initWithAddress:g_WEBSERVICE];
-            binding.logXMLInOut = NO;
-            ServiceSvc_GetIncompTicketChanges *req = [[ServiceSvc_GetIncompTicketChanges alloc] init];
-            req.User = [g_SETTINGS objectForKey:@"UserID"];
-            req.CustomerID = [g_SETTINGS objectForKey:@"CustomerID"];
-            req.MachineID = nil;
-            req.Unit = [g_SETTINGS objectForKey:@"Unit"];
-            ServiceSoapBindingResponse* resp = [binding GetIncompTicketChangesUsingParameters:req];
-            
-            for (id mine in resp.bodyParts)
-            {
-                if ([mine isKindOfClass:[ServiceSvc_GetIncompTicketChangesResponse class]])
+    @autoreleasepool {
+        NSInteger result = 0;
+        Reachability* hostReach = [Reachability reachabilityWithHostName:g_WEBSERVICE];
+        BOOL connectionRequired= [hostReach connectionRequired];
+        
+        if (!connectionRequired)
+        {
+            @try {
+                
+                ServiceSoapBinding *binding = [[ServiceSvc ServiceSoapBinding] initWithAddress:g_WEBSERVICE];
+                binding.logXMLInOut = NO;
+                ServiceSvc_GetIncompTicketChanges *req = [[ServiceSvc_GetIncompTicketChanges alloc] init];
+                req.User = [g_SETTINGS objectForKey:@"UserID"];
+                req.CustomerID = [g_SETTINGS objectForKey:@"CustomerID"];
+                req.MachineID = nil;
+                req.Unit = [g_SETTINGS objectForKey:@"Unit"];
+                ServiceSoapBindingResponse* resp = [binding GetIncompTicketChangesUsingParameters:req];
+                
+                for (id mine in resp.bodyParts)
                 {
-                    ServiceSvc_ArrayOfClsTicketChanges* resultArray = [mine GetIncompTicketChangesResult];
-                    NSMutableArray* array = [resultArray ClsTicketChanges];
-                    
-                    for (int i = 0; i < [array count]; i++)
+                    if ([mine isKindOfClass:[ServiceSvc_GetIncompTicketChangesResponse class]])
                     {
-                        ServiceSvc_ClsTicketChanges* record = [array objectAtIndex:i];
-                        NSString* TicketID = [record valueForKey:@"TicketID"];
-                        NSString* ChangeID = [record valueForKey:@"ChangeID"];
-                        NSString* ChangeInputID = [record valueForKey:@"ChangeInputID"];
+                        ServiceSvc_ArrayOfClsTicketChanges* resultArray = [mine GetIncompTicketChangesResult];
+                        NSMutableArray* array = [resultArray ClsTicketChanges];
                         
-                        NSString* sqlStr = [NSString stringWithFormat:@"Select count(*) from TicketChanges where TicketID = %@ and ChangeID = %@ and ChangeInputID = %@", TicketID , ChangeID, ChangeInputID];
-                        
-                        NSInteger count;
-                        @synchronized(g_SYNCDATADB)
+                        for (int i = 0; i < [array count]; i++)
                         {
-                            count = [DAO getCount:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sqlStr];
-                        }
-                        if (count < 1)
-                        {
-                            NSString* ChangeMade = [self removeNull:[record valueForKey:@"ChangeMade"]];
-                            NSString* ChangeTime = [self removeNull:[record valueForKey:@"ChangeTime"]];
-                            NSString* OriginalValue = [self removeNull:[record valueForKey:@"OriginalValue"]];
-                            NSString* ModifiedBy = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"ModifiedBy"]]];
+                            ServiceSvc_ClsTicketChanges* record = [array objectAtIndex:i];
+                            NSString* TicketID = [record valueForKey:@"TicketID"];
+                            NSString* ChangeID = [record valueForKey:@"ChangeID"];
+                            NSString* ChangeInputID = [record valueForKey:@"ChangeInputID"];
                             
+                            NSString* sqlStr = [NSString stringWithFormat:@"Select count(*) from TicketChanges where TicketID = %@ and ChangeID = %@ and ChangeInputID = %@", TicketID , ChangeID, ChangeInputID];
                             
-                            NSString* sql = [NSString stringWithFormat:@"Insert into TicketChanges(LocalTicketID, TicketID, ChangeID, ChangeInputID, ChangeMade, ChangeTime, OriginalValue, ModifiedBy, IsUploaded) Values(0, %@, %@, %@,'%@', '%@', '%@', %@, 1)", TicketID, ChangeID, ChangeInputID, ChangeMade, ChangeTime, OriginalValue, ModifiedBy];
+                            NSInteger count;
                             @synchronized(g_SYNCDATADB)
                             {
-                                [DAO executeInsert:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sql];
+                                count = [DAO getCount:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sqlStr];
+                            }
+                            if (count < 1)
+                            {
+                                NSString* ChangeMade = [self removeNull:[record valueForKey:@"ChangeMade"]];
+                                NSString* ChangeTime = [self removeNull:[record valueForKey:@"ChangeTime"]];
+                                NSString* OriginalValue = [self removeNull:[record valueForKey:@"OriginalValue"]];
+                                NSString* ModifiedBy = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"ModifiedBy"]]];
+                                
+                                
+                                NSString* sql = [NSString stringWithFormat:@"Insert into TicketChanges(LocalTicketID, TicketID, ChangeID, ChangeInputID, ChangeMade, ChangeTime, OriginalValue, ModifiedBy, IsUploaded) Values(0, %@, %@, %@,'%@', '%@', '%@', %@, 1)", TicketID, ChangeID, ChangeInputID, ChangeMade, ChangeTime, OriginalValue, ModifiedBy];
+                                @synchronized(g_SYNCDATADB)
+                                {
+                                    [DAO executeInsert:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sql];
+                                }
                             }
                         }
+                        result = 1;
+                        
                     }
-                    result = 1;
-                    
                 }
             }
-        }
-        @catch (NSException *exception) {
-            result = -1;
-        }
-        @finally {
-            
+            @catch (NSException *exception) {
+                result = -1;
+            }
+            @finally {
+                
+            }
         }
     }
 }
@@ -5059,66 +5077,68 @@
 
 - (void) DownloadIncompleteNotes
 {
-    NSInteger result = 0;
-    Reachability* hostReach = [Reachability reachabilityWithHostName:g_WEBSERVICE];
-    BOOL connectionRequired= [hostReach connectionRequired];
-    if (!connectionRequired)
-    {
-        @try {
-            
-            ServiceSoapBinding *binding = [[ServiceSvc ServiceSoapBinding] initWithAddress:g_WEBSERVICE];
-            binding.logXMLInOut = NO;
-            ServiceSvc_GetIncompTicketNotes *req = [[ServiceSvc_GetIncompTicketNotes alloc] init];
-            req.User = [g_SETTINGS objectForKey:@"UserID"];
-            req.CustomerID = [g_SETTINGS objectForKey:@"CustomerID"];
-            req.MachineID = nil;
-            req.Unit = [g_SETTINGS objectForKey:@"Unit"];
-            ServiceSoapBindingResponse* resp = [binding GetIncompTicketNotesUsingParameters:req];
-            for (id mine in resp.bodyParts)
-            {
-                if ([mine isKindOfClass:[ServiceSvc_GetIncompTicketNotesResponse class]])
+    @autoreleasepool {
+        NSInteger result = 0;
+        Reachability* hostReach = [Reachability reachabilityWithHostName:g_WEBSERVICE];
+        BOOL connectionRequired= [hostReach connectionRequired];
+        if (!connectionRequired)
+        {
+            @try {
+                
+                ServiceSoapBinding *binding = [[ServiceSvc ServiceSoapBinding] initWithAddress:g_WEBSERVICE];
+                binding.logXMLInOut = NO;
+                ServiceSvc_GetIncompTicketNotes *req = [[ServiceSvc_GetIncompTicketNotes alloc] init];
+                req.User = [g_SETTINGS objectForKey:@"UserID"];
+                req.CustomerID = [g_SETTINGS objectForKey:@"CustomerID"];
+                req.MachineID = nil;
+                req.Unit = [g_SETTINGS objectForKey:@"Unit"];
+                ServiceSoapBindingResponse* resp = [binding GetIncompTicketNotesUsingParameters:req];
+                for (id mine in resp.bodyParts)
                 {
-                    ServiceSvc_ArrayOfClsTicketNotes* resultArray = [mine GetIncompTicketNotesResult];
-                    NSMutableArray* array = [resultArray ClsTicketNotes];
-                    
-                    for (int i = 0; i < [array count]; i++)
+                    if ([mine isKindOfClass:[ServiceSvc_GetIncompTicketNotesResponse class]])
                     {
-                        ServiceSvc_ClsTicketNotes* record = [array objectAtIndex:i];
-                        NSString* TicketID = [record valueForKey:@"TicketID"];
-                        NSString* NoteUID = [record valueForKey:@"NoteUID"];
+                        ServiceSvc_ArrayOfClsTicketNotes* resultArray = [mine GetIncompTicketNotesResult];
+                        NSMutableArray* array = [resultArray ClsTicketNotes];
                         
-                        NSString* sqlStr = [NSString stringWithFormat:@"Select count(*) from TicketNotes where TicketID = %@ and NoteUID = %@", TicketID , NoteUID];
-                        
-                        NSInteger count;
-                        @synchronized(g_SYNCDATADB)
+                        for (int i = 0; i < [array count]; i++)
                         {
-                            count = [DAO getCount:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sqlStr];
-                        }
-                        if (count < 1)
-                        {
-                            NSString* Note = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Note"]]];
+                            ServiceSvc_ClsTicketNotes* record = [array objectAtIndex:i];
+                            NSString* TicketID = [record valueForKey:@"TicketID"];
+                            NSString* NoteUID = [record valueForKey:@"NoteUID"];
                             
-                            NSString* NoteTime = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"NoteTime"]]];
-                            //                            NSString* Deleted = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Deleted"]]];
+                            NSString* sqlStr = [NSString stringWithFormat:@"Select count(*) from TicketNotes where TicketID = %@ and NoteUID = %@", TicketID , NoteUID];
                             
-                            
-                            NSString* sql = [NSString stringWithFormat:@"Insert into TicketNotes(LocalTicketID, TicketID, NoteUID, Note, NoteTime, IsUploaded) Values(0, %@, %@, '%@', '%@', 1)", TicketID, NoteUID, Note, NoteTime];
+                            NSInteger count;
                             @synchronized(g_SYNCDATADB)
                             {
-                                [DAO executeInsert:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sql];
+                                count = [DAO getCount:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sqlStr];
+                            }
+                            if (count < 1)
+                            {
+                                NSString* Note = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Note"]]];
+                                
+                                NSString* NoteTime = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"NoteTime"]]];
+                                //                            NSString* Deleted = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Deleted"]]];
+                                
+                                
+                                NSString* sql = [NSString stringWithFormat:@"Insert into TicketNotes(LocalTicketID, TicketID, NoteUID, Note, NoteTime, IsUploaded) Values(0, %@, %@, '%@', '%@', 1)", TicketID, NoteUID, Note, NoteTime];
+                                @synchronized(g_SYNCDATADB)
+                                {
+                                    [DAO executeInsert:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sql];
+                                }
                             }
                         }
+                        result = 1;
+                        
                     }
-                    result = 1;
-                    
                 }
             }
-        }
-        @catch (NSException *exception) {
-            result = -1;
-        }
-        @finally {
-            
+            @catch (NSException *exception) {
+                result = -1;
+            }
+            @finally {
+                
+            }
         }
     }
 }
@@ -5126,162 +5146,166 @@
 
 - (void) DownloadIncompleteTicketInfo
 {
-    NSInteger result = 0;
-    Reachability* hostReach = [Reachability reachabilityWithHostName:g_WEBSERVICE];
-    BOOL connectionRequired= [hostReach connectionRequired];
-    if (!connectionRequired)
-    {
-        @try {
-            
-            ServiceSoapBinding *binding = [[ServiceSvc ServiceSoapBinding] initWithAddress:g_WEBSERVICE];
-            binding.logXMLInOut = NO;
-            ServiceSvc_GetIncompTickets *req = [[ServiceSvc_GetIncompTickets alloc] init];
-            req.User = [g_SETTINGS objectForKey:@"UserID"];
-            req.CustomerID = [g_SETTINGS objectForKey:@"CustomerID"];
-            req.MachineID = nil;
-            req.Unit = [g_SETTINGS objectForKey:@"Unit"];
-            ServiceSoapBindingResponse* resp = [binding GetIncompTicketsUsingParameters:req];
-            for (id mine in resp.bodyParts)
-            {
-                if ([mine isKindOfClass:[ServiceSvc_GetIncompTicketsResponse class]])
+    @autoreleasepool {
+        NSInteger result = 0;
+        Reachability* hostReach = [Reachability reachabilityWithHostName:g_WEBSERVICE];
+        BOOL connectionRequired= [hostReach connectionRequired];
+        if (!connectionRequired)
+        {
+            @try {
+                
+                ServiceSoapBinding *binding = [[ServiceSvc ServiceSoapBinding] initWithAddress:g_WEBSERVICE];
+                binding.logXMLInOut = NO;
+                ServiceSvc_GetIncompTickets *req = [[ServiceSvc_GetIncompTickets alloc] init];
+                req.User = [g_SETTINGS objectForKey:@"UserID"];
+                req.CustomerID = [g_SETTINGS objectForKey:@"CustomerID"];
+                req.MachineID = nil;
+                req.Unit = [g_SETTINGS objectForKey:@"Unit"];
+                ServiceSoapBindingResponse* resp = [binding GetIncompTicketsUsingParameters:req];
+                for (id mine in resp.bodyParts)
                 {
-                    ServiceSvc_ArrayOfClsTickets* resultArray = [mine GetIncompTicketsResult];
-                    NSMutableArray* array = [resultArray ClsTickets];
-                    
-                    for (int i = 0; i < [array count]; i++)
+                    if ([mine isKindOfClass:[ServiceSvc_GetIncompTicketsResponse class]])
                     {
-                        ServiceSvc_ClsTickets* record = [array objectAtIndex:i];
-                        NSString* TicketID = [record valueForKey:@"TicketID"];
-                        NSString* sqlStr = [NSString stringWithFormat:@"Select count(*) from Tickets where TicketID = %@", TicketID ];
+                        ServiceSvc_ArrayOfClsTickets* resultArray = [mine GetIncompTicketsResult];
+                        NSMutableArray* array = [resultArray ClsTickets];
                         
-                        NSInteger count;
-                        @synchronized(g_SYNCDATADB)
+                        for (int i = 0; i < [array count]; i++)
                         {
-                            count = [DAO getCount:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sqlStr];
-                        }
-                        if (count < 1)
-                        {
-                            NSString* TicketGUID = [record valueForKey:@"TicketGUID"];
-                            NSString* TicketIncidentNumber = [record valueForKey:@"TicketIncidentNumber"];
-                            NSString* TicketDesc = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketDesc"]]];
-                            NSString* TicketDOS = [self removeNull:[record valueForKey:@"TicketDOS"]];
-                            NSString* TicketStatus = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketStatus"]]];
-                            NSString* TicketOwner = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketOwner"]]];
-                            NSString* TicketCreator = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketCreator"]]];
-                            NSString* TicketUnitNumber = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketUnitNumber"]]];
-                            NSString* TicketFinalized = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketFinalized"]]];
-                            NSString* TicketDateFinalized = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketDateFinalized"]]];
-                            NSString* TicketCrew = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketCrew"]]];
-                            NSString* TicketPractice = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketPractice"]]];
-                            NSString* TicketCreatedTime = [self removeNull:[record valueForKey:@"TicketCreatedTime"]];
-                            NSString* TicketShift = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketShift"]]];
-                            NSString* TicketLocked = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketLocked"]]];
-                            NSString* TicketReviewed = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketReviewed"]]];
-                            NSString* TicketAccount = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketAccount"]]];
-                            NSString* TicketAdminNotes = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketAdminNotes"]]];
+                            ServiceSvc_ClsTickets* record = [array objectAtIndex:i];
+                            NSString* TicketID = [record valueForKey:@"TicketID"];
+                            NSString* sqlStr = [NSString stringWithFormat:@"Select count(*) from Tickets where TicketID = %@", TicketID ];
                             
-                            NSString* sql = [NSString stringWithFormat:@"Insert into Tickets(TicketID, TicketGUID, TicketIncidentNumber, TicketDesc, TicketDOS, TicketStatus, TicketOwner, TicketCreator, TicketUnitNumber, TicketFinalized, TicketDateFinalized, TicketCrew, TicketPractice, TicketCreatedTime, TicketShift, TicketLocked, TicketReviewed, TicketAccount, TicketAdminNotes, IsUploaded) Values(%@, '%@', '%@','%@', '%@', %@, %@, %@, %@, %@, '%@', '%@', %@, '%@', %@, %@, %@, %@, '%@', 1)", TicketID, TicketGUID, TicketIncidentNumber, TicketDesc, TicketDOS, TicketStatus, TicketOwner, TicketCreator, TicketUnitNumber, TicketFinalized, TicketDateFinalized, TicketCrew, TicketPractice, TicketCreatedTime, TicketShift, TicketLocked, TicketReviewed, TicketAccount, TicketAdminNotes];
+                            NSInteger count;
                             @synchronized(g_SYNCDATADB)
                             {
-                                [DAO executeInsert:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sql];
+                                count = [DAO getCount:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sqlStr];
                             }
-                        }
-                        else
-                        {
-                            NSString* TicketPractice = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketPractice"]]];
-                            
-                            NSString* TicketShift = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketShift"]]];
-                            NSString* TicketLocked = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketLocked"]]];
-                            NSString* TicketReviewed = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketReviewed"]]];
-                            NSString* TicketAccount = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketAccount"]]];
-                            NSString* TicketAdminNotes = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketAdminNotes"]]];
-                            NSString* TicketStatus = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketStatus"]]];
-                            
-                            NSString* sql = [NSString stringWithFormat:@"Update Tickets set TicketPractice = %@, TicketShift = %@, TicketLocked = %@, TicketReviewed = %@, TicketAdminNotes = '%@', TicketAccount = %@, TicketStatus = %@ where ticketID = %@", TicketPractice, TicketShift, TicketLocked, TicketReviewed, TicketAdminNotes, TicketAccount, TicketStatus, TicketID];
-                            @synchronized(g_SYNCDATADB)
+                            if (count < 1)
                             {
-                                [DAO executeUpdate:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sql];
+                                NSString* TicketGUID = [record valueForKey:@"TicketGUID"];
+                                NSString* TicketIncidentNumber = [record valueForKey:@"TicketIncidentNumber"];
+                                NSString* TicketDesc = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketDesc"]]];
+                                NSString* TicketDOS = [self removeNull:[record valueForKey:@"TicketDOS"]];
+                                NSString* TicketStatus = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketStatus"]]];
+                                NSString* TicketOwner = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketOwner"]]];
+                                NSString* TicketCreator = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketCreator"]]];
+                                NSString* TicketUnitNumber = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketUnitNumber"]]];
+                                NSString* TicketFinalized = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketFinalized"]]];
+                                NSString* TicketDateFinalized = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketDateFinalized"]]];
+                                NSString* TicketCrew = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketCrew"]]];
+                                NSString* TicketPractice = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketPractice"]]];
+                                NSString* TicketCreatedTime = [self removeNull:[record valueForKey:@"TicketCreatedTime"]];
+                                NSString* TicketShift = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketShift"]]];
+                                NSString* TicketLocked = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketLocked"]]];
+                                NSString* TicketReviewed = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketReviewed"]]];
+                                NSString* TicketAccount = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketAccount"]]];
+                                NSString* TicketAdminNotes = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketAdminNotes"]]];
+                                
+                                NSString* sql = [NSString stringWithFormat:@"Insert into Tickets(TicketID, TicketGUID, TicketIncidentNumber, TicketDesc, TicketDOS, TicketStatus, TicketOwner, TicketCreator, TicketUnitNumber, TicketFinalized, TicketDateFinalized, TicketCrew, TicketPractice, TicketCreatedTime, TicketShift, TicketLocked, TicketReviewed, TicketAccount, TicketAdminNotes, IsUploaded) Values(%@, '%@', '%@','%@', '%@', %@, %@, %@, %@, %@, '%@', '%@', %@, '%@', %@, %@, %@, %@, '%@', 1)", TicketID, TicketGUID, TicketIncidentNumber, TicketDesc, TicketDOS, TicketStatus, TicketOwner, TicketCreator, TicketUnitNumber, TicketFinalized, TicketDateFinalized, TicketCrew, TicketPractice, TicketCreatedTime, TicketShift, TicketLocked, TicketReviewed, TicketAccount, TicketAdminNotes];
+                                @synchronized(g_SYNCDATADB)
+                                {
+                                    [DAO executeInsert:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sql];
+                                }
+                            }
+                            else
+                            {
+                                NSString* TicketPractice = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketPractice"]]];
+                                
+                                NSString* TicketShift = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketShift"]]];
+                                NSString* TicketLocked = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketLocked"]]];
+                                NSString* TicketReviewed = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketReviewed"]]];
+                                NSString* TicketAccount = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketAccount"]]];
+                                NSString* TicketAdminNotes = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketAdminNotes"]]];
+                                NSString* TicketStatus = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TicketStatus"]]];
+                                
+                                NSString* sql = [NSString stringWithFormat:@"Update Tickets set TicketPractice = %@, TicketShift = %@, TicketLocked = %@, TicketReviewed = %@, TicketAdminNotes = '%@', TicketAccount = %@, TicketStatus = %@ where ticketID = %@", TicketPractice, TicketShift, TicketLocked, TicketReviewed, TicketAdminNotes, TicketAccount, TicketStatus, TicketID];
+                                @synchronized(g_SYNCDATADB)
+                                {
+                                    [DAO executeUpdate:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sql];
+                                }
                             }
                         }
+                        result = 1;
+                        
                     }
-                    result = 1;
-                    
                 }
             }
-        }
-        @catch (NSException *exception) {
-            result = -1;
-        }
-        @finally {
-            
+            @catch (NSException *exception) {
+                result = -1;
+            }
+            @finally {
+                
+            }
         }
     }
 }
 
 - (void) DownloadIncompleteTicketInputsInfo
 {
-    NSInteger result = 0;
-    Reachability* hostReach = [Reachability reachabilityWithHostName:g_WEBSERVICE];
-    BOOL connectionRequired= [hostReach connectionRequired];
-    if (!connectionRequired)
-    {
-        @try {
-            
-            ServiceSoapBinding *binding = [[ServiceSvc ServiceSoapBinding] initWithAddress:g_WEBSERVICE];
-            binding.logXMLInOut = NO;
-            ServiceSvc_GetIncompTicketInputs *req = [[ServiceSvc_GetIncompTicketInputs alloc] init];
-            req.User = [g_SETTINGS objectForKey:@"UserID"];
-            req.CustomerID = [g_SETTINGS objectForKey:@"CustomerID"];
-            req.MachineID = nil;
-            req.Unit = [g_SETTINGS objectForKey:@"Unit"];
-            ServiceSoapBindingResponse* resp = [binding GetIncompTicketInputsUsingParameters:req];
-            for (id mine in resp.bodyParts)
-            {
-                if ([mine isKindOfClass:[ServiceSvc_GetIncompTicketInputsResponse class]])
+    @autoreleasepool {
+        NSInteger result = 0;
+        Reachability* hostReach = [Reachability reachabilityWithHostName:g_WEBSERVICE];
+        BOOL connectionRequired= [hostReach connectionRequired];
+        if (!connectionRequired)
+        {
+            @try {
+                
+                ServiceSoapBinding *binding = [[ServiceSvc ServiceSoapBinding] initWithAddress:g_WEBSERVICE];
+                binding.logXMLInOut = NO;
+                ServiceSvc_GetIncompTicketInputs *req = [[ServiceSvc_GetIncompTicketInputs alloc] init];
+                req.User = [g_SETTINGS objectForKey:@"UserID"];
+                req.CustomerID = [g_SETTINGS objectForKey:@"CustomerID"];
+                req.MachineID = nil;
+                req.Unit = [g_SETTINGS objectForKey:@"Unit"];
+                ServiceSoapBindingResponse* resp = [binding GetIncompTicketInputsUsingParameters:req];
+                for (id mine in resp.bodyParts)
                 {
-                    ServiceSvc_ArrayOfClsTicketInputs* resultArray = [mine GetIncompTicketInputsResult];
-                    NSMutableArray* array = [resultArray ClsTicketInputs];
-                    
-                    for (int i = 0; i < [array count]; i++)
+                    if ([mine isKindOfClass:[ServiceSvc_GetIncompTicketInputsResponse class]])
                     {
-                        ServiceSvc_ClsTicketInputs* record = [array objectAtIndex:i];
-                        NSString* TicketID = [record valueForKey:@"TicketID"];
-                        NSString* InputID = [record valueForKey:@"InputID"];
-                        NSString* InputSubID = [record valueForKey:@"InputSubID"];
-                        NSString* InputInstance = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"InputInstance"]]];
-                        NSString* sqlStr = [NSString stringWithFormat:@"Select count(*) from TicketInputs where TicketID = %@ and InputID = %@ and InputSubID = %@ and InputInstance = %@", TicketID , InputID, InputSubID, InputInstance];
+                        ServiceSvc_ArrayOfClsTicketInputs* resultArray = [mine GetIncompTicketInputsResult];
+                        NSMutableArray* array = [resultArray ClsTicketInputs];
                         
-                        NSInteger count;
-                        @synchronized(g_SYNCDATADB)
+                        for (int i = 0; i < [array count]; i++)
                         {
-                            count = [DAO getCount:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sqlStr];
-                        }
-                        if (count < 1)
-                        {
-                            NSString* InputPage = [self removeNull:[record valueForKey:@"InputPage"]];
-                            NSString* InputName = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"InputName"]]];
-                            NSString* InputValue = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"InputValue"]]];
-                            NSString* Deleted = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Deleted"]]];
-                            NSString* Modified = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Modified"]]];
+                            ServiceSvc_ClsTicketInputs* record = [array objectAtIndex:i];
+                            NSString* TicketID = [record valueForKey:@"TicketID"];
+                            NSString* InputID = [record valueForKey:@"InputID"];
+                            NSString* InputSubID = [record valueForKey:@"InputSubID"];
+                            NSString* InputInstance = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"InputInstance"]]];
+                            NSString* sqlStr = [NSString stringWithFormat:@"Select count(*) from TicketInputs where TicketID = %@ and InputID = %@ and InputSubID = %@ and InputInstance = %@", TicketID , InputID, InputSubID, InputInstance];
                             
-                            
-                            NSString* sql = [NSString stringWithFormat:@"Insert into TicketInputs(LocalTicketID, TicketID, InputID, InputSubID, InputInstance, InputPage, InputName, InputValue, Deleted, Modified, IsUploaded) Values(0, %@, %@, %@, %@, '%@', '%@', '%@', %@, %@, 1)", TicketID, InputID, InputSubID, InputInstance, InputPage, InputName, InputValue, Deleted, Modified];
+                            NSInteger count;
                             @synchronized(g_SYNCDATADB)
                             {
-                                [DAO executeInsert:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sql];
+                                count = [DAO getCount:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sqlStr];
+                            }
+                            if (count < 1)
+                            {
+                                NSString* InputPage = [self removeNull:[record valueForKey:@"InputPage"]];
+                                NSString* InputName = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"InputName"]]];
+                                NSString* InputValue = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"InputValue"]]];
+                                NSString* Deleted = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Deleted"]]];
+                                NSString* Modified = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Modified"]]];
+                                
+                                
+                                NSString* sql = [NSString stringWithFormat:@"Insert into TicketInputs(LocalTicketID, TicketID, InputID, InputSubID, InputInstance, InputPage, InputName, InputValue, Deleted, Modified, IsUploaded) Values(0, %@, %@, %@, %@, '%@', '%@', '%@', %@, %@, 1)", TicketID, InputID, InputSubID, InputInstance, InputPage, InputName, InputValue, Deleted, Modified];
+                                @synchronized(g_SYNCDATADB)
+                                {
+                                    [DAO executeInsert:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sql];
+                                }
                             }
                         }
+                        result = 1;
+                        
                     }
-                    result = 1;
-                    
                 }
             }
-        }
-        @catch (NSException *exception) {
-            result = -1;
-        }
-        @finally {
-            
+            @catch (NSException *exception) {
+                result = -1;
+            }
+            @finally {
+                
+            }
         }
     }
 }
@@ -5289,67 +5313,69 @@
 
 - (void) DownloadIncompleteTicketAttachmentsInfo
 {
-    NSInteger result = 0;
-    Reachability* hostReach = [Reachability reachabilityWithHostName:g_WEBSERVICE];
-    BOOL connectionRequired= [hostReach connectionRequired];
-    if (!connectionRequired)
-    {
-        @try {
-            
-            ServiceSoapBinding *binding = [[ServiceSvc ServiceSoapBinding] initWithAddress:g_WEBSERVICE];
-            binding.logXMLInOut = NO;
-            ServiceSvc_GetIncompTicketAttachments *req = [[ServiceSvc_GetIncompTicketAttachments alloc] init];
-            req.User = [g_SETTINGS objectForKey:@"UserID"];
-            req.CustomerID = [g_SETTINGS objectForKey:@"CustomerID"];
-            req.MachineID = nil;
-            req.Unit = [g_SETTINGS objectForKey:@"Unit"];
-            ServiceSoapBindingResponse* resp = [binding GetIncompTicketAttachmentsUsingParameters:req];
-            for (id mine in resp.bodyParts)
-            {
-                if ([mine isKindOfClass:[ServiceSvc_GetIncompTicketAttachmentsResponse class]])
+    @autoreleasepool {
+        NSInteger result = 0;
+        Reachability* hostReach = [Reachability reachabilityWithHostName:g_WEBSERVICE];
+        BOOL connectionRequired= [hostReach connectionRequired];
+        if (!connectionRequired)
+        {
+            @try {
+                
+                ServiceSoapBinding *binding = [[ServiceSvc ServiceSoapBinding] initWithAddress:g_WEBSERVICE];
+                binding.logXMLInOut = NO;
+                ServiceSvc_GetIncompTicketAttachments *req = [[ServiceSvc_GetIncompTicketAttachments alloc] init];
+                req.User = [g_SETTINGS objectForKey:@"UserID"];
+                req.CustomerID = [g_SETTINGS objectForKey:@"CustomerID"];
+                req.MachineID = nil;
+                req.Unit = [g_SETTINGS objectForKey:@"Unit"];
+                ServiceSoapBindingResponse* resp = [binding GetIncompTicketAttachmentsUsingParameters:req];
+                for (id mine in resp.bodyParts)
                 {
-                    ServiceSvc_ArrayOfClsTicketAttachments* resultArray = [mine GetIncompTicketAttachmentsResult];
-                    NSMutableArray* array = [resultArray ClsTicketAttachments];
-                    
-                    for (int i = 0; i < [array count]; i++)
+                    if ([mine isKindOfClass:[ServiceSvc_GetIncompTicketAttachmentsResponse class]])
                     {
-                        ServiceSvc_ClsTicketAttachments* record = [array objectAtIndex:i];
-                        NSString* TicketID = [record valueForKey:@"TicketID"];
-                        NSString* AttachmentID = [record valueForKey:@"AttachmentID"];
+                        ServiceSvc_ArrayOfClsTicketAttachments* resultArray = [mine GetIncompTicketAttachmentsResult];
+                        NSMutableArray* array = [resultArray ClsTicketAttachments];
                         
-                        NSString* sqlStr = [NSString stringWithFormat:@"Select count(*) from TicketAttachments where TicketID = %@ and AttachmentID = %@", TicketID , AttachmentID];
-                        
-                        NSInteger count;
-                        @synchronized(g_SYNCBLOBSDB)
+                        for (int i = 0; i < [array count]; i++)
                         {
-                            count = [DAO getCount:[[g_SETTINGS objectForKey:@"blobsDB"] pointerValue] Sql:sqlStr];
-                        }
-                        if (count < 1)
-                        {
-                            NSString* FileType = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"FileType"]]];
-                            NSString* FileStr = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"FileStr"]]];
-                            NSString* FileName = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"FileName"]]];
-                            NSString* TimeAdded = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TimeAdded"]]];
-                            NSString* Deleted = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Deleted"]]];
+                            ServiceSvc_ClsTicketAttachments* record = [array objectAtIndex:i];
+                            NSString* TicketID = [record valueForKey:@"TicketID"];
+                            NSString* AttachmentID = [record valueForKey:@"AttachmentID"];
                             
+                            NSString* sqlStr = [NSString stringWithFormat:@"Select count(*) from TicketAttachments where TicketID = %@ and AttachmentID = %@", TicketID , AttachmentID];
                             
-                            NSString* sql = [NSString stringWithFormat:@"Insert into TicketAttachments(LocalTicketID, TicketID, AttachmentID, FileType, FileStr, FileName, TimeAdded, Deleted, IsUploaded) Values(0, %@, %@, '%@', '%@', '%@', '%@', %@, 1)", TicketID, AttachmentID, FileType, FileStr, FileName, TimeAdded, Deleted];
+                            NSInteger count;
                             @synchronized(g_SYNCBLOBSDB)
                             {
-                                [DAO executeInsert:[[g_SETTINGS objectForKey:@"blobsDB"] pointerValue] Sql:sql];
+                                count = [DAO getCount:[[g_SETTINGS objectForKey:@"blobsDB"] pointerValue] Sql:sqlStr];
+                            }
+                            if (count < 1)
+                            {
+                                NSString* FileType = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"FileType"]]];
+                                NSString* FileStr = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"FileStr"]]];
+                                NSString* FileName = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"FileName"]]];
+                                NSString* TimeAdded = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TimeAdded"]]];
+                                NSString* Deleted = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Deleted"]]];
+                                
+                                
+                                NSString* sql = [NSString stringWithFormat:@"Insert into TicketAttachments(LocalTicketID, TicketID, AttachmentID, FileType, FileStr, FileName, TimeAdded, Deleted, IsUploaded) Values(0, %@, %@, '%@', '%@', '%@', '%@', %@, 1)", TicketID, AttachmentID, FileType, FileStr, FileName, TimeAdded, Deleted];
+                                @synchronized(g_SYNCBLOBSDB)
+                                {
+                                    [DAO executeInsert:[[g_SETTINGS objectForKey:@"blobsDB"] pointerValue] Sql:sql];
+                                }
                             }
                         }
+                        result = 1;
+                        
                     }
-                    result = 1;
-                    
                 }
             }
-        }
-        @catch (NSException *exception) {
-            result = -1;
-        }
-        @finally {
-            
+            @catch (NSException *exception) {
+                result = -1;
+            }
+            @finally {
+                
+            }
         }
     }
 }
@@ -5357,67 +5383,69 @@
 
 - (void) DownloadIncompleteTicketSignaturesInfo
 {
-    NSInteger result = 0;
-    Reachability* hostReach = [Reachability reachabilityWithHostName:g_WEBSERVICE];
-    BOOL connectionRequired= [hostReach connectionRequired];
-    if (!connectionRequired)
-    {
-        @try {
-            
-            ServiceSoapBinding *binding = [[ServiceSvc ServiceSoapBinding] initWithAddress:g_WEBSERVICE];
-            binding.logXMLInOut = NO;
-            ServiceSvc_GetIncompTicketSignatures *req = [[ServiceSvc_GetIncompTicketSignatures alloc] init];
-            req.User = [g_SETTINGS objectForKey:@"UserID"];
-            req.CustomerID = [g_SETTINGS objectForKey:@"CustomerID"];
-            req.MachineID = nil;
-            req.Unit = [g_SETTINGS objectForKey:@"Unit"];
-            ServiceSoapBindingResponse* resp = [binding GetIncompTicketSignaturesUsingParameters:req];
-            for (id mine in resp.bodyParts)
-            {
-                if ([mine isKindOfClass:[ServiceSvc_GetIncompTicketSignaturesResponse class]])
+    @autoreleasepool {
+        NSInteger result = 0;
+        Reachability* hostReach = [Reachability reachabilityWithHostName:g_WEBSERVICE];
+        BOOL connectionRequired= [hostReach connectionRequired];
+        if (!connectionRequired)
+        {
+            @try {
+                
+                ServiceSoapBinding *binding = [[ServiceSvc ServiceSoapBinding] initWithAddress:g_WEBSERVICE];
+                binding.logXMLInOut = NO;
+                ServiceSvc_GetIncompTicketSignatures *req = [[ServiceSvc_GetIncompTicketSignatures alloc] init];
+                req.User = [g_SETTINGS objectForKey:@"UserID"];
+                req.CustomerID = [g_SETTINGS objectForKey:@"CustomerID"];
+                req.MachineID = nil;
+                req.Unit = [g_SETTINGS objectForKey:@"Unit"];
+                ServiceSoapBindingResponse* resp = [binding GetIncompTicketSignaturesUsingParameters:req];
+                for (id mine in resp.bodyParts)
                 {
-                    ServiceSvc_ArrayOfClsTicketSignatures* resultArray = [mine GetIncompTicketSignaturesResult];
-                    NSMutableArray* array = [resultArray ClsTicketSignatures];
-                    
-                    for (int i = 0; i < [array count]; i++)
+                    if ([mine isKindOfClass:[ServiceSvc_GetIncompTicketSignaturesResponse class]])
                     {
-                        ServiceSvc_ClsTicketSignatures* record = [array objectAtIndex:i];
-                        NSString* TicketID = [record valueForKey:@"TicketID"];
-                        NSString* SignatureID = [record valueForKey:@"SignatureID"];
+                        ServiceSvc_ArrayOfClsTicketSignatures* resultArray = [mine GetIncompTicketSignaturesResult];
+                        NSMutableArray* array = [resultArray ClsTicketSignatures];
                         
-                        NSString* sqlStr = [NSString stringWithFormat:@"Select count(*) from TicketSignatures where TicketID = %@ and SignatureID = %@", TicketID , SignatureID];
-                        
-                        NSInteger count;
-                        @synchronized(g_SYNCBLOBSDB)
+                        for (int i = 0; i < [array count]; i++)
                         {
-                            count = [DAO getCount:[[g_SETTINGS objectForKey:@"blobsDB"] pointerValue] Sql:sqlStr];
-                        }
-                        if (count < 1)
-                        {
-                            NSString* SignatureType = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"SignatureType"]]];
-                            NSString* SignatureText = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"SignatureText"]]];
-                            NSString* SignatureString = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"SignatureString"]]];
-                            NSString* SignatureTime = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"SignatureTime"]]];
-                            NSString* Deleted = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Deleted"]]];
+                            ServiceSvc_ClsTicketSignatures* record = [array objectAtIndex:i];
+                            NSString* TicketID = [record valueForKey:@"TicketID"];
+                            NSString* SignatureID = [record valueForKey:@"SignatureID"];
                             
+                            NSString* sqlStr = [NSString stringWithFormat:@"Select count(*) from TicketSignatures where TicketID = %@ and SignatureID = %@", TicketID , SignatureID];
                             
-                            NSString* sql = [NSString stringWithFormat:@"Insert into TicketSignatures(LocalTicketID, TicketID, SignatureID, SignatureType, SignatureText, SignatureString, SignatureTime, Deleted, IsUploaded) Values(0, %@, %@, %@, '%@', '%@', '%@', %@, 1)", TicketID, SignatureID, SignatureType, SignatureText, SignatureString, SignatureTime, Deleted];
+                            NSInteger count;
                             @synchronized(g_SYNCBLOBSDB)
                             {
-                                [DAO executeInsert:[[g_SETTINGS objectForKey:@"blobsDB"] pointerValue] Sql:sql];
+                                count = [DAO getCount:[[g_SETTINGS objectForKey:@"blobsDB"] pointerValue] Sql:sqlStr];
+                            }
+                            if (count < 1)
+                            {
+                                NSString* SignatureType = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"SignatureType"]]];
+                                NSString* SignatureText = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"SignatureText"]]];
+                                NSString* SignatureString = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"SignatureString"]]];
+                                NSString* SignatureTime = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"SignatureTime"]]];
+                                NSString* Deleted = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Deleted"]]];
+                                
+                                
+                                NSString* sql = [NSString stringWithFormat:@"Insert into TicketSignatures(LocalTicketID, TicketID, SignatureID, SignatureType, SignatureText, SignatureString, SignatureTime, Deleted, IsUploaded) Values(0, %@, %@, %@, '%@', '%@', '%@', %@, 1)", TicketID, SignatureID, SignatureType, SignatureText, SignatureString, SignatureTime, Deleted];
+                                @synchronized(g_SYNCBLOBSDB)
+                                {
+                                    [DAO executeInsert:[[g_SETTINGS objectForKey:@"blobsDB"] pointerValue] Sql:sql];
+                                }
                             }
                         }
+                        result = 1;
+                        
                     }
-                    result = 1;
-                    
                 }
             }
-        }
-        @catch (NSException *exception) {
-            result = -1;
-        }
-        @finally {
-            
+            @catch (NSException *exception) {
+                result = -1;
+            }
+            @finally {
+                
+            }
         }
     }
 }

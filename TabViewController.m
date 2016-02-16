@@ -126,7 +126,7 @@
 
         CGRect theRect = CGRectMake(0, 0, 1024, self.viewHeight);
         sceneView.view.frame = theRect;
-        sceneView.delegate = self;
+        self.sceneView.delegate = self;
 
         [self.tabBar setSelectedButtonAtIndex:0];
     }

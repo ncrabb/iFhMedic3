@@ -84,7 +84,6 @@
     }
     [self.mapView.layer setCornerRadius:10.0f];
     [self.mapView.layer setMasksToBounds:YES];
-    [self setTabColor:@""]; 
 
 }
 
@@ -126,7 +125,6 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(cadUpdateNeeded) name:@"CADUPDATE" object:NULL];
     [self runMapLocator];
 }
-
 
 -(void) runMapLocator
 {
@@ -215,6 +213,7 @@
     {
         self.btnQAMessage.hidden = true;
     }
+    [self setTabColor:@""];
 }
 
 - (void) cadUpdateNeeded
@@ -930,11 +929,14 @@
         {
             [array addObject:@"2"];
         }
-        else if ([page isEqualToString:@"Chief Complaint"])
+        else if ([page isEqualToString:@"Impression"])
         {
             [array addObject:@"3"];
         }
-        
+        else if ([page isEqualToString:@"Assessment"] || [page isEqualToString:@"MultiAssessment"])
+        {
+            [array addObject:@"4"];
+        }
         else if ([page isEqualToString:@"History"])
         {
             [array addObject:@"7"];
@@ -986,48 +988,50 @@
         }
     }
     
-    
-    if  ([[g_SETTINGS objectForKey:@"MedicSignatureRequired"] isEqualToString:@"1"])
+    if ([outcomeVal length] > 0 && ([outcomeVal rangeOfString:@"(null)"].location == NSNotFound))
     {
-        NSString* sqlStr = [NSString stringWithFormat:@"Select signaturetype from SignatureTypes where SignatureTypeDesc = 'In Charge Medic'"];
-        NSString* sigTypeStr;
-        @synchronized(g_SYNCLOOKUPDB)
+        if  ([[g_SETTINGS objectForKey:@"MedicSignatureRequired"] isEqualToString:@"1"])
         {
-            sigTypeStr = [DAO executeSelectInputIds:[[g_SETTINGS objectForKey:@"lookupDB"] pointerValue] Sql:sqlStr];
-        }
-        sqlStr = [NSString stringWithFormat:@"Select count(*) from ticketSignatures where ticketID = %@ and SignatureType in (%@)", ticketID, sigTypeStr];
-        NSInteger count;
-        @synchronized(g_SYNCBLOBSDB)
+            NSString* sqlStr = [NSString stringWithFormat:@"Select signaturetype from SignatureTypes where SignatureTypeDesc = 'In Charge Medic' or SignatureTypeDesc = 'Primary Medic'"];
+            NSString* sigTypeStr;
+            @synchronized(g_SYNCLOOKUPDB)
+            {
+                sigTypeStr = [DAO executeSelectInputIds:[[g_SETTINGS objectForKey:@"lookupDB"] pointerValue] Sql:sqlStr];
+            }
+            sqlStr = [NSString stringWithFormat:@"Select count(*) from ticketSignatures where ticketID = %@ and SignatureType in (%@)", ticketID, sigTypeStr];
+            NSInteger count;
+            @synchronized(g_SYNCBLOBSDB)
+            {
+                count = [DAO getCount:[[g_SETTINGS objectForKey:@"blobsDB"] pointerValue] Sql:sqlStr];
+            }
+            if (count < 1)
+            {
+                [array addObject:@"17"];
+            }
+        }  // end medic1
+        
+        if  ([[g_SETTINGS objectForKey:@"TwoMedicSigsRequired"] isEqualToString:@"1"])
         {
-            count = [DAO getCount:[[g_SETTINGS objectForKey:@"blobsDB"] pointerValue] Sql:sqlStr];
-        }
-        if (count < 1)
-        {
-            [array addObject:@"17"];
-        }
-    }  // end medic1
+            NSString* sqlStr = [NSString stringWithFormat:@"Select signaturetype from SignatureTypes where SignatureTypeDesc = 'Secondary Medic'"];
+            NSString* sigTypeStr;
+            @synchronized(g_SYNCLOOKUPDB)
+            {
+                sigTypeStr = [DAO executeSelectInputIds:[[g_SETTINGS objectForKey:@"lookupDB"] pointerValue] Sql:sqlStr];
+            }
+            sqlStr = [NSString stringWithFormat:@"Select count(*) from ticketSignatures where ticketID = %@ and SignatureType in (%@)", ticketID, sigTypeStr];
+            NSInteger count;
+            @synchronized(g_SYNCBLOBSDB)
+            {
+                count = [DAO getCount:[[g_SETTINGS objectForKey:@"blobsDB"] pointerValue] Sql:sqlStr];
+            }
+            if (count < 1)
+            {
+                [array addObject:@"17"];
+            }
+        }  // end medic1
+    }
     
-    if  ([[g_SETTINGS objectForKey:@"TwoMedicSigsRequired"] isEqualToString:@"1"])
-    {
-        NSString* sqlStr = [NSString stringWithFormat:@"Select signaturetype from SignatureTypes where SignatureTypeDesc = 'Secondary Medic'"];
-        NSString* sigTypeStr;
-        @synchronized(g_SYNCLOOKUPDB)
-        {
-            sigTypeStr = [DAO executeSelectInputIds:[[g_SETTINGS objectForKey:@"lookupDB"] pointerValue] Sql:sqlStr];
-        }
-        sqlStr = [NSString stringWithFormat:@"Select count(*) from ticketSignatures where ticketID = %@ and SignatureType in (%@)", ticketID, sigTypeStr];
-        NSInteger count;
-        @synchronized(g_SYNCBLOBSDB)
-        {
-            count = [DAO getCount:[[g_SETTINGS objectForKey:@"blobsDB"] pointerValue] Sql:sqlStr];
-        }
-        if (count < 1)
-        {
-            [array addObject:@"17"];
-        }
-    }  // end medic1
-    
-    int vitalCount;
+    int vitalCount = 0;
     NSString* vitalOnNonTrans = [g_SETTINGS objectForKey:@"RequireVitalsOnNonTransports"];
     if (![vitalOnNonTrans isEqualToString:@""])
     {

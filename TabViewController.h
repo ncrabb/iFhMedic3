@@ -30,7 +30,7 @@
 #import "NarcoticViewController.h"
 #import "SummeryViewController.h"
 
-@interface TabViewController : UIViewController <UINavigationControllerDelegate, UIImagePickerControllerDelegate, DismissSceneDelegate, DismissHistoryDelegate, DismissSymptomDelegate >
+@interface TabViewController : UIViewController <UINavigationControllerDelegate, UIImagePickerControllerDelegate, DismissSceneDelegate, DismissHistoryDelegate, DismissSymptomDelegate, DismissOutcomeDelegate >
 {
     NSInteger prevTab;
 }

@@ -607,6 +607,18 @@
     }
 }
 
+- (NSString*) removeChar:(NSString*)str
+{
+    if ([str length] > 0 && ([str rangeOfString:@"(null)"].location == NSNotFound))
+    {
+        return [str stringByReplacingOccurrencesOfString:@"'" withString:@"''"];
+    }
+    else
+    {
+        return @"";
+    }
+}
+
 -(void) viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];

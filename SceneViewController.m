@@ -622,7 +622,7 @@
     if (page == 0)
     {
         labelCount = 0;
-        NSString* sqlGroup = @"SELECT count (distinct InputGroup) FROM inputs where inputpage = 'Incident' ";
+        NSString* sqlGroup = @"SELECT count (distinct InputGroup) FROM inputs where inputpage = 'Incident' or inputpage = 'NFIRS'";
         
         @synchronized(g_SYNCLOOKUPDB)
         {
@@ -649,7 +649,7 @@
 
     if (self.incidentInput == nil)
     {
-        NSString* querySql = @"select InputID, InputName, InputDataType, InputGroup, InputRequiredField  from Inputs where InputPage = 'Incident' order by inputGroup, InputIndex";
+        NSString* querySql = @"select InputID, InputName, InputDataType, InputGroup, InputRequiredField  from Inputs where InputPage = 'Incident' or inputPage = 'NFIRS' order by inputGroup, InputIndex";
         @synchronized(g_SYNCLOOKUPDB)
         {
             self.incidentInput = [DAO selectInputs:[[g_SETTINGS objectForKey:@"lookupDB"] pointerValue] Sql:querySql];

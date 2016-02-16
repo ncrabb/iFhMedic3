@@ -245,7 +245,7 @@
     for (NSInteger i =  start ; i < self.incidentInput.count && i < (lastPageCount + 1)* 13; i++)
     {
         InputVIewCalltime* inputView = (InputVIewCalltime*)[inputContainer viewWithTag:i+1];
-        NSString* inputValue = [self removeNull:inputView.btnInput.titleLabel.text];
+        NSString* inputValue = [self removeNull:inputView.txtInput.text];
         
         @synchronized(g_SYNCDATADB)
         {
@@ -271,7 +271,7 @@
     if (tag < self.incidentInput.count && tag < (self.pageControl.currentPage + 1)*12)
     {
         InputViewFull* inputView = (InputViewFull*)[inputContainer viewWithTag:tag + 1];
-        [inputView btnInputClick:inputView.btnInput];
+      //  [inputView btnInputClick:inputView.btnInput];
     }
 }
 
@@ -357,32 +357,18 @@
             labelCount++;
             pageArray[self.pageControl.currentPage] = labelCount;
         }
-        if (input.inputDataType == 11)
-        {
-            InputVIewCalltime* inputView = [[InputVIewCalltime alloc] init];
-            inputView.backgroundColor = [UIColor whiteColor];
-            inputView.frame = CGRectMake(0, ypos, 1024, 44);
-            inputView.inputType = input.inputDataType;
-            inputView.inputID = input.inputID;
-            inputView.delegate = self;
-            inputView.tag = i + 1;
-            inputView.btnInput.tag = input.inputID;
-            [self.inputContainer addSubview:inputView];
-            [inputView setLabelText:input.inputName dataType:input.inputDataType inputRequired:input.inputRequiredField];
-        }
-        else
-        {
-            InputViewFull* inputView = [[InputViewFull alloc] init];
-            inputView.backgroundColor = [UIColor whiteColor];
-            inputView.frame = CGRectMake(0, ypos, 1024, 44);
-            inputView.inputType = input.inputDataType;
-            inputView.inputID = input.inputID;
-            inputView.delegate = self;
-            inputView.tag = i + 1;
-            inputView.btnInput.tag = input.inputID;
-            [self.inputContainer addSubview:inputView];
-            [inputView setLabelText:input.inputName dataType:input.inputDataType inputRequired:input.inputRequiredField];
-        }
+
+        InputVIewCalltime* inputView = [[InputVIewCalltime alloc] init];
+        inputView.backgroundColor = [UIColor whiteColor];
+        inputView.frame = CGRectMake(0, ypos, 1024, 44);
+        inputView.inputType = input.inputDataType;
+        inputView.inputID = input.inputID;
+        inputView.delegate = self;
+        inputView.tag = i + 1;
+        inputView.btnInput.tag = input.inputID;
+        [self.inputContainer addSubview:inputView];
+        [inputView setLabelText:input.inputName dataType:input.inputDataType inputRequired:input.inputRequiredField];
+
         ypos += 45;
 
         if (ypos > 555)
@@ -670,7 +656,7 @@
     if (tag < self.incidentInput.count && tag < (self.pageControl.currentPage + 1)*12)
     {
         InputVIewCalltime* inputView = (InputVIewCalltime*)[inputContainer viewWithTag:tag + 1];
-        [inputView.txtInput becomeFirstResponder];
+       // [inputView.txtInput becomeFirstResponder];
     }
 }
 

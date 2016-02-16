@@ -24,6 +24,8 @@
     __weak id <DismissInputViewCalltimeDelegate> delegate;
     Keypad* keypad;
     NSMutableString *displayStr;
+    int savedtag;
+    int yCoord;
 }
 
 @property (assign, nonatomic) NSInteger tabPage;

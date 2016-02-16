@@ -43,7 +43,7 @@
         keypad.delegate = self;
         self.txtInput.inputView = keypad;
         self.txtInput.inputAccessoryView.hidden = YES;
-        self.txtInput.inputAccessoryView = nil;
+        savedtag = 0;
     }
     
     return self;
@@ -62,7 +62,7 @@
         keypad.delegate = self;
         self.txtInput.inputView = keypad;
         self.txtInput.inputAccessoryView.hidden = YES;
-        self.txtInput.inputAccessoryView = nil;
+
     }
     return self;
 }
@@ -79,7 +79,7 @@
 
 -(void) setBtnText: (NSString*) btnText
 {
-
+    self.txtInput.text = btnText;
     
 }
 
@@ -97,15 +97,57 @@
 - (void)textFieldDidBeginEditing:(UITextField*)textField
 {
     if ( textField.inputView != nil)
-        // if ( [textField.inputView isKindOfClass:[CustomKeypad class]] )
-        ((Keypad*)textField.inputView).target = textField;
+    {
+        if ( [textField.inputView isKindOfClass:[Keypad class]] )
+        {
+            ((Keypad*)textField.inputView).target = textField;
+        }
+        float y = [[textField superview] superview].frame.origin.y;
+        
+        if (y  > 350)
+        {
+            savedtag = [[textField superview] superview].tag;
+            [self setViewMovedUp:YES];
+        }
+    }
+    
 }
 
 - (void)textFieldDidEndEditing:(UITextField*)textField
 {
     if (textField.inputView != nil)
-        // if ( [textField.inputView isKindOfClass:[CustomKeypad class]] )
+    {     // if ( [textField.inputView isKindOfClass:[CustomKeypad class]] )
         ((Keypad*)textField.inputView).target = nil;
+        int tag = [[textField superview] superview].tag;
+        
+        if (tag == savedtag)
+        {
+            [self setViewMovedUp:NO];
+        }
+    }
+}
+
+- (void)setViewMovedUp:(BOOL)movedUp
+{
+    
+    [UIView beginAnimations:nil context:NULL];
+    [UIView setAnimationDuration:0.3];
+    // Make changes to the view's frame inside the animation block. They will be animated instead
+    // of taking place immediately.
+    CGRect rect = [self.view superview].frame;
+    if (movedUp)
+    {
+        yCoord = rect.origin.y;
+        rect.origin.y = 0.0;
+
+    }
+    else
+    {
+        
+        rect.origin.y = yCoord;
+    }
+    [self.view superview].frame = rect;
+    [UIView commitAnimations];
 }
 
 
@@ -286,7 +328,6 @@
         }
     }
 }
-
 
 
 - (NSString*) settime:(NSInteger) value

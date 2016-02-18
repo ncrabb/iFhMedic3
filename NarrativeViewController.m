@@ -2184,8 +2184,19 @@
         
         [htmlString appendString:[NSString stringWithFormat:@"%@", input.inputValue]];
         [htmlString appendString:@"</Time>"];
+        NSString* newStr1 = [input.inputName stringByReplacingOccurrencesOfString:@"&" withString:@"&amp;"];
+        NSString* newStr2 = [newStr1 stringByReplacingOccurrencesOfString:@"<" withString:@"&lt;"];
+        NSString* newStr3 = [newStr2 stringByReplacingOccurrencesOfString:@">" withString:@"&gt;"];
+        int asciiCode1 = 13;
+        NSString *string1 = [NSString stringWithFormat:@"%c", asciiCode1];
+        NSString* newStr4 = [newStr3 stringByReplacingOccurrencesOfString:string1 withString:@"&amp;"];
+        int asciiCode = 3;
+        NSString *string = [NSString stringWithFormat:@"%c", asciiCode];
+        NSString* inputname= [newStr4 stringByReplacingOccurrencesOfString:string withString:@"&amp;"];
+        
         [htmlString appendString:@"<Type>"];
-        [htmlString appendString:[NSString stringWithFormat:@"%@", input.inputName]];
+        
+        [htmlString appendString:[NSString stringWithFormat:@"%@", inputname]];
         [htmlString appendString:@"</Type>"];
         [htmlString appendString:@"</Protocol>"];
         

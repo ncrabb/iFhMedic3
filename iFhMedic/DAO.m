@@ -1683,6 +1683,7 @@ extern NSMutableDictionary* g_SETTINGS;
             else
                 sig.imageStr = [NSString stringWithUTF8String: localityChars];
             
+            sig.deleted = 0;
             [array addObject:sig];
         }
     }
@@ -2278,7 +2279,18 @@ extern NSMutableDictionary* g_SETTINGS;
     @try
     {
         const char *query_stmt = [sql UTF8String];
-        
+        int dayRetain = 3;
+        @try {
+            NSString* dayStr = [g_SETTINGS objectForKey:@"HoursInInbox"];
+            if (dayStr.length > 0)
+            {
+                int intervalVal = [dayStr intValue];
+                dayRetain = (int) intervalVal /24;
+            }
+        }
+        @catch (NSException *exception) {
+            dayRetain = 3;
+        }
         int result1 = sqlite3_prepare_v2(ptrDbType, query_stmt, -1, &statement, NULL);
         if (result1 == SQLITE_OK)
         {
@@ -2294,7 +2306,7 @@ extern NSMutableDictionary* g_SETTINGS;
                 dateCreatedStr = [dateCreatedStr substringToIndex:dateCreatedStr.length - 6];
                 NSDate* dateCreated = [format dateFromString:dateCreatedStr];
                 NSDateComponents* diff = [[NSCalendar currentCalendar] components:NSDayCalendarUnit fromDate:dateCreated toDate:today options:0];
-                if ([diff day]> 10)
+                if ([diff day]> dayRetain)
                 {
                     NSString* sqlStr = [NSString stringWithFormat:@"Select count(*) from ticketInputs where ticketID = %d and isUploaded = 0", ticketID];
                     NSInteger count = [DAO getCount:ptrDbType Sql:sqlStr];

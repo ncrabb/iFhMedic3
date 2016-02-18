@@ -15,4 +15,5 @@
 @synthesize type;
 @synthesize imageStr;
 @synthesize signatureID;
+@synthesize deleted;
 @end

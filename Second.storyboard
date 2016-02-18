@@ -546,6 +546,9 @@
                                             <state key="normal" title="Inbox" backgroundImage="mainMenu_btn_bg.png">
                                                 <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                             </state>
+                                            <connections>
+                                                <action selector="btnMainMenuClick:" destination="MuS-Fl-c0T" eventType="touchUpInside" id="54M-PA-EW3"/>
+                                            </connections>
                                         </button>
                                     </barButtonItem>
                                     <barButtonItem style="plain" id="3O2-aL-95C">
@@ -555,6 +558,9 @@
                                             <state key="normal" title="QA Msg" backgroundImage="mainMenu_btn_bg.png">
                                                 <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                             </state>
+                                            <connections>
+                                                <action selector="btnQAMessageClick:" destination="MuS-Fl-c0T" eventType="touchUpInside" id="Owj-ke-khd"/>
+                                            </connections>
                                         </button>
                                     </barButtonItem>
                                     <barButtonItem width="450" id="ha3-Cb-vSi"/>
@@ -669,6 +675,7 @@
                     <simulatedScreenMetrics key="simulatedDestinationMetrics" type="iPad"/>
                     <connections>
                         <outlet property="btnNameLabel" destination="ha3-Cb-vSi" id="rhz-5V-puf"/>
+                        <outlet property="btnQAMessage" destination="F5k-AW-tec" id="NVn-dA-vSf"/>
                         <outlet property="signContainerView" destination="Leu-Jg-kX4" id="TXn-kD-OrF"/>
                         <outlet property="toolBar" destination="Eve-t6-5Gx" id="YDB-ca-xEY"/>
                     </connections>

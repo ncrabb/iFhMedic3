@@ -74,6 +74,6 @@
 - (IBAction)btnClearSelectedClick:(id)sender;
 - (IBAction)btnClearAllClick:(id)sender;
 
-- (IBAction)btnQuickClick:(UIButton *)sender;
+
 - (IBAction)btnQAMessageClick:(UIButton *)sender;
 @end

@@ -19,4 +19,5 @@
 @property(nonatomic, strong) NSString* id;
 @property(nonatomic, assign) NSInteger type;
 @property(nonatomic, assign) NSInteger signatureID;
+@property(nonatomic, assign) NSInteger deleted;
 @end

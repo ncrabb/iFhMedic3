@@ -232,7 +232,7 @@
 - (void) loadData
 {
     self.ticketID = [g_SETTINGS objectForKey:@"currentTicketID"];
-    NSString* sql = [NSString stringWithFormat:@"Select * from ticketSignatures where ticketId = %@", ticketID];
+    NSString* sql = [NSString stringWithFormat:@"Select * from ticketSignatures where ticketId = %@ and (deleted is null or deleted = 0)", ticketID];
     @synchronized(g_SYNCBLOBSDB)
     {
         self.imageArray = [DAO executeSelectSignatures:[[g_SETTINGS objectForKey:@"blobsDB"] pointerValue] Sql:sql];
@@ -321,7 +321,7 @@
             {
                 @synchronized(g_SYNCBLOBSDB)
                 {
-                    sqlStr = [NSString stringWithFormat:@"UPDATE TicketSignatures Set signatureText = '%@', signatureString = '%@', isUploaded = 0 where TicketID = %@ and signatureType = %ld", [self removeNull:sigImage.name], sigEncoded, ticketID, sigImage.type];
+                    sqlStr = [NSString stringWithFormat:@"UPDATE TicketSignatures Set signatureText = '%@', signatureString = '%@', deleted = %d, isUploaded = 0 where TicketID = %@ and signatureType = %ld", [self removeNull:sigImage.name], sigEncoded, sigImage.deleted, ticketID, sigImage.type];
                     [DAO executeUpdate:[[g_SETTINGS objectForKey:@"blobsDB"] pointerValue] Sql:sqlStr];
                 }
             }
@@ -587,22 +587,16 @@
 - (IBAction)btnClearSelectedClick:(id)sender {
     if (btnSelected > -1)
     {
-        CustomSignatureView *signButton = (CustomSignatureView*)[signContainerView viewWithTag:btnSelected];
-        [signButton clearImage];
-        btnSelected = -1;
+        UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"FhMedic for iPad" message:@"Are you sure you want to permanently delete this signature?" delegate:self cancelButtonTitle:@"No" otherButtonTitles:@"Yes", nil];
+        alert.tag = 1;
+        [alert show];
     }
 }
 
 - (IBAction)btnClearAllClick:(id)sender {
-	for(int i=0; i<13 ; i++)
-	{
-        CustomSignatureView *signButton = (CustomSignatureView*)[signContainerView viewWithTag:i];
-        if (signButton.selected)
-        {
-           [signButton clearImage];
-            btnSelected = -1;
-        }
-    }
+    UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"FhMedic for iPad" message:@"Are you sure you want to permanently delete all signatures?" delegate:self cancelButtonTitle:@"No" otherButtonTitles:@"Yes", nil];
+    alert.tag = 2;
+    [alert show];
 }
 
 -(void) cancelPatientRefusal
@@ -1068,4 +1062,60 @@
     }
 }
 
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    if (alertView.tag == 0)
+    {
+        if (buttonIndex == 1)
+        {
+            exit(0);
+        } else
+        {
+            
+        }
+    }
+    else if (alertView.tag == 1)
+    {
+        if (buttonIndex == 1)
+        {
+            CustomSignatureView *signButton = (CustomSignatureView*)[signContainerView viewWithTag:btnSelected];
+            [signButton clearImage];
+            ClsSignatureTypes* type = [signatureTypesArray objectAtIndex:btnSelected];
+            for (int i = 0; i< [imageArray count]; i++)
+            {
+                ClsSignatureImages* sigIm = [imageArray objectAtIndex:i];
+                if (sigIm.type == type.signatureType)
+                {
+                    sigIm.deleted = 1;
+                }
+            }
+
+            btnSelected = -1;
+        }
+    }
+    else if (alertView.tag == 2)
+    {
+        if (buttonIndex == 1)
+        {
+            
+            for (int i = 0; i< [imageArray count]; i++)
+            {
+                ClsSignatureImages* sigIm = [imageArray objectAtIndex:i];
+                
+                sigIm.deleted = 1;
+                
+            }
+            
+            for(int i=0; i<13 ; i++)
+            {
+                CustomSignatureView *signButton = (CustomSignatureView*)[signContainerView viewWithTag:i];
+                if (signButton.selected)
+                {
+                    [signButton clearImage];
+                    btnSelected = -1;
+                }
+            }
+        }
+    }
+}
 @end

@@ -213,7 +213,13 @@
     {
         self.btnQAMessage.hidden = true;
     }
-    [self setTabColor:@""];
+    NSString* outcome;
+    @synchronized(g_SYNCDATADB)
+    {
+        NSString* outcomeSql = [NSString stringWithFormat:@"Select inputValue from ticketInputs where ticketID = %@ and inputID = 1401", ticketID];
+        outcome = [DAO executeSelectScalar:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:outcomeSql];
+    }
+    [self setTabColor:outcome];
 }
 
 - (void) cadUpdateNeeded

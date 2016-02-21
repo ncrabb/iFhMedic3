@@ -207,7 +207,7 @@
                 [self.popover presentPopoverFromRect:frame inView:self.view permittedArrowDirections:UIPopoverArrowDirectionLeft animated:YES];
             }
         }
-        else if (inputType == 3 || inputType == 4 || inputType == 5 || inputType == 10 )
+        else if (inputType == 3 || inputType == 4 || inputType == 10 )
         {
             
             PopupIncidentViewController *popoverView =[[PopupIncidentViewController alloc] initWithNibName:@"PopupIncidentViewController" bundle:nil];
@@ -235,12 +235,99 @@
 
         }
         
-        else if (inputType == 12  ||  inputType == 13 ||  inputType == 14 ||  inputType == 15)
+        else if ( inputType == 12 )
         {
             
             if ([array count] < 1)
             {
-                NSString* querySql = [NSString stringWithFormat:@"select Inputs.InputID, 'Inputs', IL.ValueName from Inputs inner join InputLookup IL on Inputs.InputID = IL.InputID where Inputs.InputID = %d", inputID];
+
+                NSString* querySql = [NSString stringWithFormat:@"select rowID, 'Inputs', CityName from Cities"];
+                @synchronized(g_SYNCLOOKUPDB)
+                {
+                    self.array = [DAO loadIncidentInfo:[[g_SETTINGS objectForKey:@"lookupDB"] pointerValue] Sql:querySql WithExtraInfo:NO];
+                }
+            }
+            
+            
+            PopupDataViewController *popoverView =[[PopupDataViewController alloc] initWithNibName:@"PopupDataViewController" bundle:nil];
+            
+            popoverView.array = self.array;
+            popoverView.view.backgroundColor = [UIColor whiteColor];
+            
+            self.popover =[[UIPopoverController alloc] initWithContentViewController:popoverView];
+            self.popover.popoverBackgroundViewClass = [DDPopoverBackgroundView class];  // Mani
+            self.popover.popoverContentSize = CGSizeMake(480, 320);
+            popoverView.delegate = self;
+            CGRect frame = sender.frame;
+            frame.origin.x -= 230;
+            [self.popover presentPopoverFromRect:frame inView:self.view permittedArrowDirections:UIPopoverArrowDirectionLeft animated:YES];
+            
+        }
+        else if ( inputType == 13 )
+        {
+            
+            if ([array count] < 1)
+            {
+                
+                NSString* querySql = [NSString stringWithFormat:@"select rowID, 'Inputs', CountyName from Counties"];
+                @synchronized(g_SYNCLOOKUPDB)
+                {
+                    self.array = [DAO loadIncidentInfo:[[g_SETTINGS objectForKey:@"lookupDB"] pointerValue] Sql:querySql WithExtraInfo:NO];
+                }
+            }
+            
+            
+            PopupDataViewController *popoverView =[[PopupDataViewController alloc] initWithNibName:@"PopupDataViewController" bundle:nil];
+            
+            popoverView.array = self.array;
+            popoverView.view.backgroundColor = [UIColor whiteColor];
+            
+            self.popover =[[UIPopoverController alloc] initWithContentViewController:popoverView];
+            self.popover.popoverBackgroundViewClass = [DDPopoverBackgroundView class];  // Mani
+            self.popover.popoverContentSize = CGSizeMake(480, 320);
+            popoverView.delegate = self;
+            CGRect frame = sender.frame;
+            frame.origin.x -= 230;
+            [self.popover presentPopoverFromRect:frame inView:self.view permittedArrowDirections:UIPopoverArrowDirectionLeft animated:YES];
+            
+        }
+        else if ( inputType == 14 )
+        {
+            
+            if ([array count] < 1)
+            {
+                // NSString* querySql = [NSString stringWithFormat:@"select Inputs.InputID, 'Inputs', IL.ValueName from Inputs inner join InputLookup IL on Inputs.InputID = IL.InputID where Inputs.InputID = %d", inputID];
+                NSString* querySql = [NSString stringWithFormat:@"select rowID, 'Inputs', stateName from States"];
+                @synchronized(g_SYNCLOOKUPDB)
+                {
+                    self.array = [DAO loadIncidentInfo:[[g_SETTINGS objectForKey:@"lookupDB"] pointerValue] Sql:querySql WithExtraInfo:NO];
+                }
+            }
+            
+            
+            PopupDataViewController *popoverView =[[PopupDataViewController alloc] initWithNibName:@"PopupDataViewController" bundle:nil];
+            
+            popoverView.array = self.array;
+            popoverView.view.backgroundColor = [UIColor whiteColor];
+            
+            self.popover =[[UIPopoverController alloc] initWithContentViewController:popoverView];
+            self.popover.popoverBackgroundViewClass = [DDPopoverBackgroundView class];  // Mani
+            self.popover.popoverContentSize = CGSizeMake(480, 320);
+            popoverView.delegate = self;
+            CGRect frame = sender.frame;
+            frame.origin.x -= 230;
+            [self.popover presentPopoverFromRect:frame inView:self.view permittedArrowDirections:UIPopoverArrowDirectionLeft animated:YES];
+            
+        }
+       
+        
+        else if (inputType == 15 )
+        {
+            
+            if ([array count] < 1)
+            {
+               // NSString* querySql = [NSString stringWithFormat:@"select Inputs.InputID, 'Inputs', IL.ValueName from Inputs inner join InputLookup IL on Inputs.InputID = IL.InputID where Inputs.InputID = %d", inputID];
+                NSString* querySql = [NSString stringWithFormat:@"select rowID, 'Inputs', ziptext from Zips"];
                 @synchronized(g_SYNCLOOKUPDB)
                 {
                     self.array = [DAO loadIncidentInfo:[[g_SETTINGS objectForKey:@"lookupDB"] pointerValue] Sql:querySql WithExtraInfo:NO];

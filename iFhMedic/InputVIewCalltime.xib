@@ -7,6 +7,7 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="InputVIewCalltime">
             <connections>
+                <outlet property="btnDisplay" destination="lf1-bu-8nK" id="sCV-u9-h5U"/>
                 <outlet property="btnInput" destination="QFH-ew-9cw" id="Dw6-pF-vdT"/>
                 <outlet property="txtInput" destination="GTg-BJ-35S" id="sPp-mV-XPp"/>
                 <outlet property="view" destination="iN0-l3-epB" id="odN-yb-Hnb"/>
@@ -29,6 +30,15 @@
                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                     <textInputTraits key="textInputTraits"/>
                 </textField>
+                <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lf1-bu-8nK">
+                    <rect key="frame" x="410" y="1" width="600" height="42"/>
+                    <state key="normal">
+                        <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                    </state>
+                    <connections>
+                        <action selector="btnDisplayClick:" destination="-1" eventType="touchUpInside" id="TBS-bF-7sb"/>
+                    </connections>
+                </button>
             </subviews>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>

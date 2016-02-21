@@ -20,7 +20,8 @@
 @synthesize position;
 @synthesize delegate;
 @synthesize tabPage;
-
+@synthesize btnDisplay;
+@synthesize txtInput;
 /*
  // Only override drawRect: if you perform custom drawing.
  // An empty implementation adversely affects performance during animation.
@@ -29,21 +30,40 @@
  }
  */
 
+-(id) initWithInput:(NSInteger) input
+{
+    self=[super init];
+    if (self)
+    {
+        if (input == 1060 || input == 1061 || input == 9050 || input == 1067 || input == 1066)
+        {
+            btnDisplay.hidden = false;
+            txtInput.hidden = true;
+        }
+        else
+        {
+            btnDisplay.hidden = true;
+            txtInput.hidden = false;
+            displayStr = [[NSMutableString alloc] init];
+            self.txtInput.delegate = self;
+            keypad = [[Keypad alloc] init];
+            keypad.delegate = self;
+            self.txtInput.inputView = keypad;
+            self.txtInput.inputAccessoryView.hidden = YES;
+            savedtag = 0;
+        }
+    }
+    return self;
+}
+
 - (id)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
     if (self) {
         [[NSBundle mainBundle] loadNibNamed:@"InputVIewCalltime" owner:self options:nil];
         self.bounds = self.view.bounds;
-        
-        [self addSubview:self.view];
-        displayStr = [[NSMutableString alloc] init];
-        self.txtInput.delegate = self;
-        keypad = [[Keypad alloc] init];
-        keypad.delegate = self;
-        self.txtInput.inputView = keypad;
         self.txtInput.inputAccessoryView.hidden = YES;
-        savedtag = 0;
+        [self addSubview:self.view];
     }
     
     return self;
@@ -56,12 +76,6 @@
     {
         [[NSBundle mainBundle] loadNibNamed:@"InputVIewCalltime" owner:self options:nil];
         [self addSubview:self.view];
-        displayStr = [[NSMutableString alloc] init];
-        self.txtInput.delegate = self;
-        keypad = [[Keypad alloc] init];
-        keypad.delegate = self;
-        self.txtInput.inputView = keypad;
-        self.txtInput.inputAccessoryView.hidden = YES;
 
     }
     return self;
@@ -80,16 +94,53 @@
 -(void) setBtnText: (NSString*) btnText
 {
     self.txtInput.text = btnText;
+    [btnDisplay setTitle:btnText forState:UIControlStateNormal];
+}
+
+- (IBAction)btnDisplayClick:(UIButton*)sender {
+    NumericViewController *popoverView =[[NumericViewController alloc] initWithNibName:@"NumericViewController" bundle:nil];
+    popoverView.view.backgroundColor = [UIColor blackColor];
+    self.popover =[[UIPopoverController alloc] initWithContentViewController:popoverView];
+    self.popover.popoverBackgroundViewClass = [DDPopoverBackgroundView class];  // Mani
+    self.popover.popoverContentSize = CGSizeMake(400, 400);
+    popoverView.utoEnabled = true;
+    popoverView.unhide = 1;
+    popoverView.utoEnabled = true;
     
+    popoverView.delegate = self;
+    CGRect frame = sender.frame;
+    frame.origin.x -= 400;
+    popoverView.lblTitle.textColor = [UIColor blackColor];
+    [self.popover presentPopoverFromRect:frame inView:self.view permittedArrowDirections:UIPopoverArrowDirectionLeft animated:YES];
 }
 
 - (IBAction)btnInputClick:(UIButton *)sender {
-    
-    NSDate *currDate = [NSDate date];
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc]init];
-    [dateFormatter setDateFormat:@"MM/dd/yyyy HH:mm:ss"];
-    NSString *dateString = [dateFormatter stringFromDate:currDate];
-    self.txtInput.text = dateString;
+    if (self.inputID == 1060 || self.inputID == 1061 || self.inputID == 9050 || self.inputID == 1067 || self.inputID == 1066)
+    {
+        NumericViewController *popoverView =[[NumericViewController alloc] initWithNibName:@"NumericViewController" bundle:nil];
+        popoverView.view.backgroundColor = [UIColor blackColor];
+        self.popover =[[UIPopoverController alloc] initWithContentViewController:popoverView];
+        self.popover.popoverBackgroundViewClass = [DDPopoverBackgroundView class];  // Mani
+        self.popover.popoverContentSize = CGSizeMake(400, 400);
+        popoverView.utoEnabled = true;
+        popoverView.unhide = 1;
+        popoverView.utoEnabled = true;
+        
+        popoverView.delegate = self;
+        CGRect frame = sender.frame;
+     //   frame.origin.x += 100;
+        popoverView.lblTitle.textColor = [UIColor blackColor];
+        [self.popover presentPopoverFromRect:frame inView:self.view permittedArrowDirections:UIPopoverArrowDirectionLeft animated:YES];
+
+    }
+    else
+    {
+        NSDate *currDate = [NSDate date];
+        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc]init];
+        [dateFormatter setDateFormat:@"MM/dd/yyyy HH:mm:ss"];
+        NSString *dateString = [dateFormatter stringFromDate:currDate];
+        self.txtInput.text = dateString;
+    }
     
 }
 
@@ -371,9 +422,23 @@
     return YES;
 }
 
-- (void) doneNumericClick
+-(void) doneNumericClick
 {
-    
+    NumericViewController *p = (NumericViewController *)self.popover.contentViewController;
+    if ([p isKindOfClass:[NumericViewController class]])
+    {
+        if (p.detailsSet)
+        {
+            if (p.vitalSelected == 1)
+            {
+                // lblSystolic.text = p.detailsText;
+            }
+        }
+    }
+    [btnDisplay setTitle:p.displayStr forState:UIControlStateNormal];
+    [self.popover dismissPopoverAnimated:YES];
+    self.popover = nil;
+    [delegate doneInputView:self.tag];
 }
 
 @end

@@ -16,6 +16,7 @@
 @protocol DismissInputViewCalltimeDelegate <NSObject>
 
 -(void) doneInputViewCalltime:(NSInteger) tag;
+-(void) doneInputView:(NSInteger) tag;
 
 @end
 
@@ -36,16 +37,20 @@
 @property (assign, nonatomic) NSInteger inputType;
 @property (strong, nonatomic) IBOutlet UITextField *txtInput;
 @property (strong, nonatomic) IBOutlet UIButton *btnInput;
+@property (strong, nonatomic) IBOutlet UIButton *btnDisplay;
 
 
 
 @property (strong, nonatomic) UIPopoverController* popover;
 @property (strong, nonatomic) NSMutableArray* array;
 
-
+-(id) initWithInput:(NSInteger) input;
 
 - (IBAction)btnInputClick:(UIButton *)sender;
 
 -(void) setLabelText: (NSString*) labelText dataType:(NSInteger) type inputRequired:(NSInteger) required;
 -(void) setBtnText: (NSString*) btnText;
+
+- (IBAction)btnDisplayClick:(id)sender;
+
 @end

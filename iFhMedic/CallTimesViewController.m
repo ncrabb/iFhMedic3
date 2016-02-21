@@ -225,7 +225,16 @@
         for (NSInteger i =  start ; i < self.incidentInput.count && i < (lastPageCount + 1)* 13; i++)
         {
             InputVIewCalltime* inputView = (InputVIewCalltime*)[inputContainer viewWithTag:i+1];
-            NSString* inputValue = [self removeNull:inputView.txtInput.text];
+            NSString* inputValue;
+            
+            if (inputView.btnInput.tag == 1060 || inputView.btnInput.tag == 1061 || inputView.btnInput.tag == 9050 || inputView.btnInput.tag == 1067 || inputView.btnInput.tag == 1066)
+            {
+                 inputValue = [self removeNull:inputView.btnDisplay.titleLabel.text];
+            }
+            else
+            {
+                inputValue = [self removeNull:inputView.txtInput.text];
+            }
             NSString* inputKey = [NSString stringWithFormat:@"%d:0:1", inputView.btnInput.tag];
             if ( (inputValue != nil) && !([inputValue isEqualToString:[ticketInputData objectForKey:inputKey]]) )
             {
@@ -245,7 +254,15 @@
     for (NSInteger i =  start ; i < self.incidentInput.count && i < (lastPageCount + 1)* 13; i++)
     {
         InputVIewCalltime* inputView = (InputVIewCalltime*)[inputContainer viewWithTag:i+1];
-        NSString* inputValue = [self removeNull:inputView.txtInput.text];
+        NSString* inputValue;
+        if (inputView.btnInput.tag == 1060 || inputView.btnInput.tag == 1061 || inputView.btnInput.tag == 9050 || inputView.btnInput.tag == 1067 || inputView.btnInput.tag == 1066)
+        {
+            inputValue = [self removeNull:inputView.btnDisplay.titleLabel.text];
+        }
+        else
+        {
+            inputValue = [self removeNull:inputView.txtInput.text];
+        }
         
         @synchronized(g_SYNCDATADB)
         {
@@ -329,7 +346,7 @@
 
     if (self.incidentInput == nil)
     {
-        NSString* querySql = @"select InputID, InputName, 11 as InputDataType, InputGroup, InputRequiredField, inputIndex  from Inputs where InputPage = 'Call Times' order by inputGroup, InputIndex";
+        NSString* querySql = @"select InputID, InputName, InputDataType, InputGroup, InputRequiredField, inputIndex  from Inputs where InputPage = 'Call Times' order by inputGroup, InputIndex";
         @synchronized(g_SYNCLOOKUPDB)
         {
             self.incidentInput = [DAO selectInputs:[[g_SETTINGS objectForKey:@"lookupDB"] pointerValue] Sql:querySql];
@@ -358,7 +375,7 @@
             pageArray[self.pageControl.currentPage] = labelCount;
         }
 
-        InputVIewCalltime* inputView = [[InputVIewCalltime alloc] init];
+        InputVIewCalltime* inputView = [[InputVIewCalltime alloc] initWithInput:input.inputID];
         inputView.backgroundColor = [UIColor whiteColor];
         inputView.frame = CGRectMake(0, ypos, 1024, 44);
         inputView.inputType = input.inputDataType;
@@ -407,194 +424,6 @@
     
 }
 
-- (void) setControl
-{
-/*    [btnCallTime setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-  
-    [btnBackHome setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-    [btnEnRoute setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-    
-    [btnDispatched setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-
-    [btnEnRoute setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-
-    [btnAtScene setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-
-    [btnDepartScene setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-
-    [btnArriveDest setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-
-    [btnUnitClear setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-
-    [btnAtPatient setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-
-    [lblMileageAtScene setTextColor:[UIColor blackColor]];
-
-    [lblMileageAtDest setTextColor:[UIColor blackColor]];
-    
-    [btnTransferCare setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-
-    [lblIncidentType setTextColor:[UIColor blackColor]];
-    [lblAlarmType setTextColor:[UIColor blackColor]];
-    [lblAidGiven setTextColor:[UIColor blackColor]];
-    [lblPropertyUse setTextColor:[UIColor blackColor]];
-    [lblActionTaken setTextColor:[UIColor blackColor]];
-    [lblMileageBegin setTextColor:[UIColor blackColor]];
-    [lblMileageEnd setTextColor:[UIColor blackColor]];
-    [lblLoadedMile setTextColor:[UIColor blackColor]];
-    [lblTotalMile setTextColor:[UIColor blackColor]];
-    
-    NSString* outcomeVal;
-    NSString* sqlOutcome = [NSString stringWithFormat:@"select InputValue from TicketInputs where ticketID = %@ and InputID = 1401", ticketID];
-    @synchronized(g_SYNCDATADB)
-    {
-        outcomeVal = [DAO executeSelectRequiredInput:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sqlOutcome];
-    }
-    
-    NSString* sql;
-    if ([outcomeVal length] > 0 && ([outcomeVal rangeOfString:@"(null)"].location == NSNotFound))
-    {
-        if ([outcomeVal isEqualToString:@"Patient Transported"])
-        {
-            sql = [NSString stringWithFormat:@"select inputID, 'Inputs', 'id' from Inputs where InputRequiredField = 1 and inputpage like 'Call Times' union select inputID, 'Inputs', 'id' from outcomes o inner join OutcomeRequiredItems ori on o.outcomeID = ori.outcomeID where o.description = '%@' and o.outcomeID = 1" , outcomeVal];
-            
-        }
-        else if ( ([outcomeVal rangeOfString:@"Guardian Refusal"]).location != NSNotFound)
-        {
-            sql = [NSString stringWithFormat:@"select inputID, 'Inputs', 'id' from outcomes o inner join OutcomeRequiredItems ori on o.outcomeID = ori.outcomeID where o.description = '%@' and o.outcomeID = 2" , outcomeVal];
-        }
-        else if ( ([outcomeVal rangeOfString:@"Patient Transferred"]).location != NSNotFound)
-        {
-            sql = [NSString stringWithFormat:@"select inputID, 'Inputs', 'id' from outcomes o inner join OutcomeRequiredItems ori on o.outcomeID = ori.outcomeID where o.description = '%@' and o.outcomeID = 3" , outcomeVal];
-        }
-        else if ( ([outcomeVal rangeOfString:@"Disregarded"]).location != NSNotFound)
-        {
-            sql = [NSString stringWithFormat:@"select inputID, 'Inputs', 'id' from outcomes o inner join OutcomeRequiredItems ori on o.outcomeID = ori.outcomeID where o.description = '%@' and o.outcomeID = 4" , outcomeVal];
-        }
-        else if ( ([outcomeVal rangeOfString:@"No Patient Contact"]).location != NSNotFound)
-        {
-            sql = [NSString stringWithFormat:@"select inputID, 'Inputs', 'id' from outcomes o inner join OutcomeRequiredItems ori on o.outcomeID = ori.outcomeID where o.description = '%@' and o.outcomeID = 5" , outcomeVal];
-        }
-        else if ( ([outcomeVal rangeOfString:@"False Alarm"]).location != NSNotFound)
-        {
-            sql = [NSString stringWithFormat:@"select inputID, 'Inputs', 'id' from outcomes o inner join OutcomeRequiredItems ori on o.outcomeID = ori.outcomeID where o.description = '%@' and o.outcomeID = 7" , outcomeVal];
-        }
-        else if ( ([outcomeVal rangeOfString:@"DOA"]).location != NSNotFound)
-        {
-            sql = [NSString stringWithFormat:@"select inputID, 'Inputs', 'id' from outcomes o inner join OutcomeRequiredItems ori on o.outcomeID = ori.outcomeID where o.description = '%@' and o.outcomeID = 9" , outcomeVal];
-        }
-        else if ( ([outcomeVal rangeOfString:@"Treatment No Transport"]).location != NSNotFound)
-        {
-            sql = [NSString stringWithFormat:@"select inputID, 'Inputs', 'id' from outcomes o inner join OutcomeRequiredItems ori on o.outcomeID = ori.outcomeID where o.description = '%@' and o.outcomeID = 10" , outcomeVal];
-        }
-        else if ( ([outcomeVal rangeOfString:@"Patient Tranferred to other Service"]).location != NSNotFound)
-        {
-            sql = [NSString stringWithFormat:@"select inputID, 'Inputs', 'id' from outcomes o inner join OutcomeRequiredItems ori on o.outcomeID = ori.outcomeID where o.description = '%@' and o.outcomeID = 11" , outcomeVal];
-        }
-        else if ( ([outcomeVal rangeOfString:@"Did not Perform Medical Care"]).location != NSNotFound)
-        {
-            sql = [NSString stringWithFormat:@"select inputID, 'Inputs', 'id' from outcomes o inner join OutcomeRequiredItems ori on o.outcomeID = ori.outcomeID where o.description = '%@' and o.outcomeID = 12" , outcomeVal];
-        }
-        else
-        {
-            sql = @"SELECT distinct i.inputid, i.inputname, i.inputpage FROM inputs i where i.inputrequiredfield = 1 and i.inputpage like 'Call Times%'";            
-        }
-        
-    }
-    else
-    {
-        sql = @"SELECT distinct i.inputid, i.inputname, i.inputpage FROM inputs i where i.inputrequiredfield = 1 and i.inputpage like 'Call Times%' or InputPage = 'NFIRS'";
-    }
-    NSMutableArray* requiredArray;
-    @synchronized(g_SYNCLOOKUPDB)
-    {
-        requiredArray = [DAO loadIncidentInfo:[[g_SETTINGS objectForKey:@"lookupDB"] pointerValue] Sql:sql WithExtraInfo:NO];
-    }
-    for (int i = 0; i < [requiredArray count]; i++)
-    {
-        ClsTableKey* key = [requiredArray objectAtIndex:i];
-        if (key.key == 1040)
-        {
-            [btnDispatched setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
-        }
-        else if (key.key == 1041)
-        {
-            [btnEnRoute setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
-        }
-        else if (key.key == 1042)
-        {
-            [btnAtScene setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
-        }
-        else if (key.key == 1043)
-        {
-            [btnDepartScene setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
-        }
-        else if (key.key == 1044)
-        {
-            [btnArriveDest setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
-        }
-        else if (key.key == 1045)
-        {
-            [btnTransferCare setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
-        }
-        else if (key.key == 1046)
-        {
-            [btnUnitClear setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
-        }
-        else if (key.key == 1048)
-        {
-            [btnCallTime setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
-        }
-        else if (key.key == 1049)
-        {
-            [btnBackHome setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
-        }
-        else if (key.key == 1047)
-        {
-            [btnAtPatient setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
-        }
-        else if (key.key == 1060)
-        {
-            [lblMileageAtScene setTextColor:[UIColor redColor]];
-        }
-        else if (key.key == 1061)
-        {
-            [lblMileageAtDest setTextColor:[UIColor redColor]];
-        }
-        else if (key.key == 1552)
-        {
-            [lblAidGiven setTextColor:[UIColor redColor]];
-        }
-        else if (key.key == 1554)
-        {
-            [lblActionTaken setTextColor:[UIColor redColor]];
-        }
-        else if (key.key == 1550)
-        {
-            [lblIncidentType setTextColor:[UIColor redColor]];
-        }
-        else if (key.key == 1551)
-        {
-            [lblAlarmType setTextColor:[UIColor redColor]];
-        }
-        else if (key.key == 1553)
-        {
-            [lblPropertyUse setTextColor:[UIColor redColor]];
-        }
-        else if (key.key == 1067)
-        {
-            [lblMileageBegin setTextColor:[UIColor redColor]];
-        }
-        else if (key.key == 1066)
-        {
-            [lblMileageEnd setTextColor:[UIColor redColor]];
-        }
-        else if (key.key == 9050)
-        {
-            [lblLoadedMile setTextColor:[UIColor redColor]];
-        }
-    } */
-}
 
 - (void) removeToolBarItems
 {

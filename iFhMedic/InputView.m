@@ -99,7 +99,7 @@
         frame.origin.x -= 100;
         [self.popover presentPopoverFromRect:frame inView:self.view permittedArrowDirections:UIPopoverArrowDirectionLeft animated:YES];
     }
-    else if (inputType == 4 || inputType == 10 ||  inputType == 5 ||  inputType == 12  ||  inputType == 13 ||  inputType == 14)
+    else if (inputType == 3 || inputType == 4 || inputType == 10 ||  inputType == 5 ||  inputType == 12  ||  inputType == 13 ||  inputType == 14)
     {
         
         PopupIncidentViewController *popoverView =[[PopupIncidentViewController alloc] initWithNibName:@"PopupIncidentViewController" bundle:nil];
@@ -273,4 +273,14 @@
     [delegate doneInputView:self.tag];
 }
 
+-(void) doneDateTimeClick
+{
+    DateTimeViewController *p = (DateTimeViewController *)self.popover.contentViewController;
+
+    [btnInput setTitle:p.displayStr forState:UIControlStateNormal];
+    
+    [self.popover dismissPopoverAnimated:YES];
+    self.popover = nil;
+    [delegate doneInputView:self.tag];
+}
 @end

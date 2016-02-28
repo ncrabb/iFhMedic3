@@ -241,22 +241,31 @@
     for (int i = 0; i< [imageArray count]; i++)
     {
         ClsSignatureImages* sig = [imageArray objectAtIndex:i];
-        [Base64 initialize];
+        // [Base64 initialize];
         NSData* data = [Base64 decode:sig.imageStr];
         sig.image = [UIImage imageWithData:data];
-
-        for (int j=0; j< [signatureTypesArray count]; j++)
+        
+        if (sig.type == 99)
         {
-            ClsSignatureTypes* type = [signatureTypesArray objectAtIndex:j];
-            if (type.signatureType == sig.type)
-            {
-                sig.id = type.signatureTypeDesc;
-                CustomSignatureView *signButton = (CustomSignatureView*)[signContainerView viewWithTag:j];
-                [signButton setImage:sig.image];
-            }
-            
+            sig.id = @"Patient unable/unwilling to sign";
+            CustomSignatureView *signButton = (CustomSignatureView*)[signContainerView viewWithTag:signatureTypesArray.count - 1];
+            [signButton setImage:sig.image];
         }
-
+        else
+        {
+            for (int j=0; j< [signatureTypesArray count]; j++)
+            {
+                ClsSignatureTypes* type = [signatureTypesArray objectAtIndex:j];
+                if (type.signatureType == sig.type)
+                {
+                    sig.id = type.signatureTypeDesc;
+                    CustomSignatureView *signButton = (CustomSignatureView*)[signContainerView viewWithTag:j];
+                    [signButton setImage:sig.image];
+                }
+                
+            }
+        }
+        
     }
 }
 
@@ -811,24 +820,23 @@
     {
         ClsSignatureImages* sigImage = [[ClsSignatureImages alloc] init];
         sigImage.image = p.image;
-        sigImage.name = p.txtName.text;
+        sigImage.name = [NSString stringWithFormat:@"My signature below indicates that, at the time of service, the patient was physically or mentally incapable of signing, and that no responsible parties were available or willing to sign on the patient''s behalf. Reason: %@",p.txtName.text];
         CustomSignatureView *signButton = (CustomSignatureView*)[signContainerView viewWithTag:p.view.tag];
         
         [signButton setImage:p.image];
         
-
-            sigImage.id = [NSString stringWithFormat:@"%@: No PT Signature\n%@", p.txtCrew, p.txtName];
-            sigImage.type = 0;
-
-
+        
+        sigImage.id = [NSString stringWithFormat:@"%@: No PT Signature\n%@", p.txtCrew, p.txtName];
+        sigImage.type = 99;
+        
+        
         [imageArray addObject:sigImage];
-       // [self loadImages];
+        // [self loadImages];
     }
     
     [self.popover dismissPopoverAnimated:YES];
     self.popover = nil;
 }
-
 
 - (void) doneOtherSigningClick
 {
@@ -1080,13 +1088,27 @@
         {
             CustomSignatureView *signButton = (CustomSignatureView*)[signContainerView viewWithTag:btnSelected];
             [signButton clearImage];
-            ClsSignatureTypes* type = [signatureTypesArray objectAtIndex:btnSelected];
-            for (int i = 0; i< [imageArray count]; i++)
+            if (btnSelected == signatureTypesArray.count - 1)
             {
-                ClsSignatureImages* sigIm = [imageArray objectAtIndex:i];
-                if (sigIm.type == type.signatureType)
+                for (int i = 0; i< [imageArray count]; i++)
                 {
-                    sigIm.deleted = 1;
+                    ClsSignatureImages* sigIm = [imageArray objectAtIndex:i];
+                    if (sigIm.type == 99)
+                    {
+                        sigIm.deleted = 1;
+                    }
+                }
+            }
+            else
+            {
+                ClsSignatureTypes* type = [signatureTypesArray objectAtIndex:btnSelected];
+                for (int i = 0; i< [imageArray count]; i++)
+                {
+                    ClsSignatureImages* sigIm = [imageArray objectAtIndex:i];
+                    if (sigIm.type == type.signatureType)
+                    {
+                        sigIm.deleted = 1;
+                    }
                 }
             }
 

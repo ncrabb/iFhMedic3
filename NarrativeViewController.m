@@ -246,7 +246,7 @@
     if(self.currentIndex == 0)
     {
         
-        sqlStr = [NSString stringWithFormat:@"Select count(*) from TicketInputs where TicketID = %@ and InputID = 1430 and InputName = 'Medic'", ticketID ];
+        sqlStr = [NSString stringWithFormat:@"Select count(*) from TicketInputs where TicketID = %@ and InputID = 1430 and InputSubID = 0", ticketID ];
         NSInteger count;
         @synchronized(g_SYNCDATADB)
         {
@@ -273,7 +273,8 @@
         else
         {
             
-            sqlStr = [NSString stringWithFormat:@"UPDATE TicketInputs Set InputValue = '%@', isUploaded = 0 where TicketID = %@ and InputID = 1430 and InputName = 'Medic'", [self removeNull:text], ticketID];
+            sqlStr = [NSString stringWithFormat:@"UPDATE TicketInputs Set InputValue = '%@', isUploaded = 0 where TicketID = %@ and InputID = 1430 and InputSubID = 0", [self removeNull:text], ticketID];
+
             @synchronized(g_SYNCDATADB)
             {
                 [DAO executeUpdate:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sqlStr];
@@ -285,7 +286,7 @@
     else if(self.currentIndex == 1)
     {
         
-        sqlStr = [NSString stringWithFormat:@"Select count(*) from TicketInputs where TicketID = %@ and InputID = 1430 and InputName = 'Auto'", ticketID ];
+        sqlStr = [NSString stringWithFormat:@"Select count(*) from TicketInputs where TicketID = %@ and InputID = 1430 and InputSubID = 1", ticketID ];
         NSInteger count;
         @synchronized(g_SYNCDATADB)
         {
@@ -311,7 +312,7 @@
             }
             else
             {
-                sqlStr = [NSString stringWithFormat:@"UPDATE TicketInputs Set InputValue = '%@', isUploaded = 0 where TicketID = %@ and InputID = 1430 and InputName = 'Auto'", [self removeNull:text], ticketID];
+            sqlStr = [NSString stringWithFormat:@"UPDATE TicketInputs Set InputValue = '%@', isUploaded = 0 where TicketID = %@ and InputID = 1430 and InputSubID = 1", [self removeNull:text], ticketID];
                 [DAO executeUpdate:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sqlStr];
                 
             }
@@ -321,7 +322,7 @@
     else if(self.currentIndex == 2)
     {
         
-        sqlStr = [NSString stringWithFormat:@"Select count(*) from TicketInputs where TicketID = %@ and InputID = 1430 and InputName = 'Incident'", ticketID ];
+        sqlStr = [NSString stringWithFormat:@"Select count(*) from TicketInputs where TicketID = %@ and InputID = 1430 and InputSubID = 2", ticketID ];
         NSInteger count;
         @synchronized(g_SYNCDATADB)
         {
@@ -347,7 +348,7 @@
             }
             else
             {
-                sqlStr = [NSString stringWithFormat:@"UPDATE TicketInputs Set InputValue = '%@', isUploaded = 0 where TicketID = %@ and InputID = 1430 and InputName = 'Incident'", [self removeNull:text], ticketID];
+                sqlStr = [NSString stringWithFormat:@"UPDATE TicketInputs Set InputValue = '%@', isUploaded = 0 where TicketID = %@ and InputID = 1430 and InputSubID = 2", [self removeNull:text], ticketID];
                 [DAO executeUpdate:[[g_SETTINGS objectForKey:@"dataDB"] pointerValue] Sql:sqlStr];
                 
             }
@@ -2280,7 +2281,7 @@
                 title = sigType.signatureTypeDesc;
             }
             [htmlString appendString:@"<Name>"];
-            [htmlString appendString:[NSString stringWithFormat:@"%@", title]];
+            [htmlString appendString:[NSString stringWithFormat:@"%@", [self removeNull:title]]];
             [htmlString appendString:@"</Name>"];
             
             [htmlString appendString:@"<File>"];

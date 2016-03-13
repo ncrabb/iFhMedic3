@@ -826,7 +826,7 @@
                 title = sigType.signatureTypeDesc;
             }
             [htmlString appendString:@"<Name>"];
-            [htmlString appendString:[NSString stringWithFormat:@"%@", title]];
+            [htmlString appendString:[NSString stringWithFormat:@"%@", [self removeNull:title]]];
             [htmlString appendString:@"</Name>"];
             
             [htmlString appendString:@"<File>"];

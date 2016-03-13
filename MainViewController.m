@@ -439,8 +439,8 @@
                             }
                             if (count < 1)
                             {
-                                NSString* InputPage = [self removeNull:[record valueForKey:@"InputPage"]];
-                                NSString* InputName = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"InputName"]]];
+                                NSString* InputPage = [self removeChar:[record valueForKey:@"InputPage"]];
+                                NSString* InputName = [self removeChar:[NSString stringWithFormat:@"%@",[record valueForKey:@"InputName"]]];
                                 NSString* InputValue = [self removeChar:[NSString stringWithFormat:@"%@",[record valueForKey:@"InputValue"]]];
                                 NSString* Deleted = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Deleted"]]];
                                 NSString* Modified = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Modified"]]];
@@ -510,7 +510,7 @@
                             {
                                 NSString* FileType = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"FileType"]]];
                                 NSString* FileStr = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"FileStr"]]];
-                                NSString* FileName = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"FileName"]]];
+                                NSString* FileName = [self removeChar:[NSString stringWithFormat:@"%@",[record valueForKey:@"FileName"]]];
                                 NSString* TimeAdded = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"TimeAdded"]]];
                                 NSString* Deleted = [self removeNull:[NSString stringWithFormat:@"%@",[record valueForKey:@"Deleted"]]];
                                 

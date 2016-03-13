@@ -27,6 +27,7 @@
     NSString* patientName;
     bool multiPatientRefusalInSetting;
     bool multiPatientRefusalInTable;
+    bool patientUnwillingSigned;
 }
 @property (strong, nonatomic) OtherSigViewController* other;
 @end
@@ -96,7 +97,8 @@
 {
     [super viewWillAppear:animated];
     tabSaved = 0;
-
+    
+    patientUnwillingSigned = false;
     signatureSeleted = -1;
     btnSelected = -1;
     signatureCount = 0;
@@ -250,6 +252,8 @@
             sig.id = @"Patient unable/unwilling to sign";
             CustomSignatureView *signButton = (CustomSignatureView*)[signContainerView viewWithTag:signatureTypesArray.count - 1];
             [signButton setImage:sig.image];
+            patientUnwillingSigned = true;
+            
         }
         else
         {
@@ -272,10 +276,8 @@
 
 -(void) viewWillDisappear:(BOOL)animated
 {
-    if (tabSaved == 0)
-    {
-     [self saveTab];
-    }
+    [self saveTab];
+  
     [super viewWillDisappear:animated];
 }
 
@@ -338,7 +340,7 @@
         }
         
         }
-    tabSaved = 1;
+
 }
 
 
@@ -836,6 +838,10 @@
     
     [self.popover dismissPopoverAnimated:YES];
     self.popover = nil;
+    [self saveTab];
+    [self loadData];
+    [self setControl];
+    
 }
 
 - (void) doneOtherSigningClick
@@ -868,6 +874,10 @@
     }
     [self.popover dismissPopoverAnimated:YES];
     self.popover = nil;
+    [self saveTab];
+    [self loadData];
+    [self setControl];
+    
 }
 
 - (void) doneSigningClick
@@ -896,6 +906,10 @@
     }   
     [self.popover dismissPopoverAnimated:YES];
     self.popover = nil;
+    [self saveTab];
+    [self loadData];
+    [self setControl];
+    
 }
 
 #pragma mark- UI controls adjustments
@@ -942,7 +956,7 @@
         }
         else
         {
-            sql = [NSString stringWithFormat:@"select inputID, 'Inputs', 'id' from outcomes o inner join OutcomeRequiredItems ori on o.outcomeID = ori.outcomeID where o.description = '%@' and o.outcomeID = %ld" , outcomeVal, key.key];
+            sql = [NSString stringWithFormat:@"select SignatureType, SignatureTypeDesc, SignatureGroup from SignatureTypes st inner join OutcomeRequiredSignatures ori on st.SignatureGroup = ori.SignatureGroupID where  ori.outcomeID = %ld", key.key ];
             
         }
         
@@ -956,6 +970,67 @@
     {
         requiredArray = [DAO loadIncidentInfo:[[g_SETTINGS objectForKey:@"lookupDB"] pointerValue] Sql:sql WithExtraInfo:NO];
     }
+    
+    NSString* patientSigSql = @"select SignatureType from SignatureTypes where signatureGroup = 'Patient'";
+    NSString* patientGroupIds;
+    @synchronized(g_SYNCLOOKUPDB)
+    {
+        patientGroupIds = [DAO executeSelectInputIds:[[g_SETTINGS objectForKey:@"lookupDB"] pointerValue] Sql:patientSigSql];
+    }
+    int patientGroupSigEntered;
+    
+    NSString* patientGroupSignedSql = [NSString stringWithFormat:@"Select count(*) from ticketSignatures where ticketID = %@ and signatureType in (%@, 99) and (deleted is  null or deleted = 0)", ticketID, patientGroupIds];
+    
+    bool patientGroupSigned = false;
+    @synchronized(g_SYNCBLOBSDB)
+    {
+        patientGroupSigEntered = [DAO getCount:[[g_SETTINGS objectForKey:@"blobsDB"] pointerValue] Sql:patientGroupSignedSql];
+    }
+    if (patientGroupSigEntered > 0)
+    {
+        patientGroupSigned = true;
+    }
+    
+    bool hospitalGroupSigned = false;
+    NSString* hospitalSigSql = @"select SignatureType from SignatureTypes where signatureGroup = 'Hospital'";
+    NSString* hospitalGroupIds;
+    @synchronized(g_SYNCLOOKUPDB)
+    {
+        hospitalGroupIds = [DAO executeSelectInputIds:[[g_SETTINGS objectForKey:@"lookupDB"] pointerValue] Sql:hospitalSigSql];
+    }
+    int hospitalGroupSigEntered;
+    
+    NSString* hospitalGroupSignedSql = [NSString stringWithFormat:@"Select count(*) from ticketSignatures where ticketID = %@ and signatureType in (%@) and (deleted is  null or deleted = 0)", ticketID, hospitalGroupIds];
+    
+    @synchronized(g_SYNCBLOBSDB)
+    {
+        hospitalGroupSigEntered = [DAO getCount:[[g_SETTINGS objectForKey:@"blobsDB"] pointerValue] Sql:hospitalGroupSignedSql];
+    }
+    if (hospitalGroupSigEntered > 0)
+    {
+        hospitalGroupSigned = true;
+    }
+    
+    bool refusalGroupSigned = false;
+    NSString* refusalSigSql = @"select SignatureType from SignatureTypes where signatureGroup = 'Patient Refusal'";
+    NSString* refusalGroupIds;
+    @synchronized(g_SYNCLOOKUPDB)
+    {
+        refusalGroupIds = [DAO executeSelectInputIds:[[g_SETTINGS objectForKey:@"lookupDB"] pointerValue] Sql:refusalSigSql];
+    }
+    int refusalGroupSigEntered;
+    
+    NSString* refusalGroupSignedSql = [NSString stringWithFormat:@"Select count(*) from ticketSignatures where ticketID = %@ and signatureType in (%@) and (deleted is  null or deleted = 0)", ticketID, refusalGroupIds];
+    
+    @synchronized(g_SYNCBLOBSDB)
+    {
+        refusalGroupSigEntered = [DAO getCount:[[g_SETTINGS objectForKey:@"blobsDB"] pointerValue] Sql:refusalGroupSignedSql];
+    }
+    if (refusalGroupSigEntered > 0)
+    {
+        refusalGroupSigned = true;
+    }
+    
     for (int i = 0; i < [requiredArray count]; i++)
     {
         ClsTableKey* key = [requiredArray objectAtIndex:i];
@@ -964,21 +1039,87 @@
             ClsSignatureTypes * type = [signatureTypesArray objectAtIndex:j];
             if (key.key == type.signatureType)
             {
-                if ([key.desc isEqualToString:@"Medic"])
+                
+                if ([key.desc isEqualToString:@"Hospital"])
+                {
+                    if (!hospitalGroupSigned)
+                    {
+                        CustomSignatureView *signButton = (CustomSignatureView*)[signContainerView viewWithTag:j];
+                        signButton.lblTitle.textColor = [UIColor redColor];
+                    }
+                    
+                }
+                
+                
+                else if ([key.desc isEqualToString:@"Witness"])
+                {
+                    CustomSignatureView *signButton = (CustomSignatureView*)[signContainerView viewWithTag:j];
+                    if (!signButton.signImage.image)
+                    {
+                        signButton.lblTitle.textColor = [UIColor redColor];
+                    }
+                    
+                }
+                else if ([key.desc isEqualToString:@"Patient Refusal"])
+                {
+                    if (!refusalGroupSigned)
+                    {
+                        CustomSignatureView *signButton = (CustomSignatureView*)[signContainerView viewWithTag:j];
+                        signButton.lblTitle.textColor = [UIColor redColor];
+                    }
+                    
+                }
+                else if ([key.desc isEqualToString:@"Medic"])
                 {
                     if  ([[g_SETTINGS objectForKey:@"TwoMedicSigsRequired"] isEqualToString:@"1"])
                     {
                         CustomSignatureView *signButton = (CustomSignatureView*)[signContainerView viewWithTag:j];
-                        signButton.lblTitle.textColor = [UIColor redColor];
+                        if (!signButton.signImage.image)
+                        {
+                            signButton.lblTitle.textColor = [UIColor redColor];
+                        }
+                        else
+                        {
+                            signButton.lblTitle.textColor = [UIColor blackColor];
+                        }
                     }
                     else
                     {
                         if ([type.signatureTypeDesc isEqualToString:@"Primary Medic"] || [type.signatureTypeDesc isEqualToString:@"In Charge Medic"] )
                         {
                             CustomSignatureView *signButton = (CustomSignatureView*)[signContainerView viewWithTag:j];
-                            signButton.lblTitle.textColor = [UIColor redColor];
+                            
+                            if (!signButton.signImage.image)
+                            {
+                                signButton.lblTitle.textColor = [UIColor redColor];
+                            }
+                            else
+                            {
+                                signButton.lblTitle.textColor = [UIColor blackColor];
+                            }
                         }
                     }
+                }
+                else if ([key.desc isEqualToString:@"Patient"] || [key.tableName isEqualToString:@"Patient unable/unwilling to sign"])
+                {
+                    if (!patientGroupSigned)
+                    {
+                        CustomSignatureView *signButton = (CustomSignatureView*)[signContainerView viewWithTag:j];
+                        signButton.lblTitle.textColor = [UIColor redColor];
+                    }
+                    else if ([key.tableName isEqualToString:@"Patient unable/unwilling to sign"])
+                    {
+                        if (!patientUnwillingSigned)
+                        {
+                            CustomSignatureView *signButton = (CustomSignatureView*)[signContainerView viewWithTag:j];
+                            if (!signButton.signImage.image)
+                            {
+                                signButton.lblTitle.textColor = [UIColor redColor];
+                            }
+                            
+                        }
+                    }
+                    
                 }
                 else
                 {
@@ -986,7 +1127,7 @@
                     CustomSignatureView *signButton = (CustomSignatureView*)[signContainerView viewWithTag:j];
                     signButton.lblTitle.textColor = [UIColor redColor];
                 }
-
+                
             }
             
         }
@@ -1001,7 +1142,15 @@
             if ([type.signatureTypeDesc isEqualToString:@"Primary Medic"] || [type.signatureTypeDesc isEqualToString:@"In Charge Medic"])
             {
                 CustomSignatureView *signButton = (CustomSignatureView*)[signContainerView viewWithTag:j];
-                signButton.lblTitle.textColor = [UIColor redColor];
+                if (!signButton.signImage.image)
+                {
+                    signButton.lblTitle.textColor = [UIColor redColor];
+                }
+                else
+                {
+                    signButton.lblTitle.textColor = [UIColor blackColor];
+                }
+
             }
         }
     }
@@ -1021,7 +1170,7 @@
 - (void) doneQuickButton
 {
     [self.popover dismissPopoverAnimated:YES];
-    self.popover = nil;    
+    self.popover = nil;
 }
 
 - (void) donePerformedByClick
@@ -1113,6 +1262,10 @@
             }
 
             btnSelected = -1;
+            [self saveTab];
+            [self loadData];
+            [self setControl];
+            
         }
     }
     else if (alertView.tag == 2)
@@ -1137,6 +1290,9 @@
                     btnSelected = -1;
                 }
             }
+            [self saveTab];
+            [self loadData];
+            [self setControl];
         }
     }
 }
